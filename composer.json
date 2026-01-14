@@ -1,0 +1,86 @@
+{
+    "name": "accelade/forms",
+    "description": "Form builder components for Accelade - create dynamic forms with text inputs, selects, checkboxes, and more",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fady Mondy",
+            "email": "info@3x1.io",
+            "homepage": "https://3x1.io",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/accelade/forms",
+    "keywords": [
+        "laravel",
+        "blade",
+        "accelade",
+        "forms",
+        "form-builder",
+        "inputs",
+        "validation"
+    ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../accelade",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "accelade/accelade": "@dev",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/view": "^11.0|^12.0",
+        "illuminate/validation": "^11.0|^12.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Accelade\\Forms\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Accelade\\Forms\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Accelade\\Forms\\FormsServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "pest",
+        "test:coverage": "pest --coverage",
+        "format": "pint",
+        "format:test": "pint --test",
+        "mago": "./mago lint src/ || mago lint src/",
+        "mago:fix": "./mago lint src/ --fix || mago lint src/ --fix",
+        "analyse": [
+            "@format:test",
+            "@mago"
+        ],
+        "ci": [
+            "@analyse",
+            "@test"
+        ]
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
