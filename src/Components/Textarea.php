@@ -20,6 +20,16 @@ class Textarea extends Field
 
     protected bool $autosize = false;
 
+    protected static bool $defaultAutosize = false;
+
+    /**
+     * Set up the field with defaults.
+     */
+    protected function setUp(): void
+    {
+        $this->autosize = static::$defaultAutosize;
+    }
+
     /**
      * Set the number of rows.
      */
@@ -72,6 +82,14 @@ class Textarea extends Field
     public function hasAutosize(): bool
     {
         return $this->autosize;
+    }
+
+    /**
+     * Set autosize as the default for all textarea instances.
+     */
+    public static function defaultAutosize(bool $autosize = true): void
+    {
+        static::$defaultAutosize = $autosize;
     }
 
     /**

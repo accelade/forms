@@ -53,3 +53,18 @@ it('can be set to stacked layout', function () {
 
     expect($field->isInline())->toBeFalse();
 });
+
+// Grid columns layout
+it('has one column by default', function () {
+    $field = Radio::make('plan');
+
+    expect($field->getColumns())->toBe(1)
+        ->and($field->hasColumns())->toBeFalse();
+});
+
+it('can set columns for grid layout', function () {
+    $field = Radio::make('plan')->columns(3);
+
+    expect($field->getColumns())->toBe(3)
+        ->and($field->hasColumns())->toBeTrue();
+});

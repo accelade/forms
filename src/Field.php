@@ -70,6 +70,16 @@ abstract class Field implements Htmlable
     }
 
     /**
+     * Set the field name.
+     */
+    public function name(string $name): static
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
      * Get the field name.
      */
     public function getName(): string
@@ -81,6 +91,14 @@ abstract class Field implements Htmlable
      * Get the wire:model attribute name (supports dot notation).
      */
     public function getWireModelName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * Get the state path for this field.
+     */
+    public function getStatePath(): string
     {
         return $this->name;
     }
@@ -195,6 +213,16 @@ abstract class Field implements Htmlable
     public function getDefault(): mixed
     {
         return $this->evaluate($this->default);
+    }
+
+    /**
+     * Get the current value for this field.
+     *
+     * Returns old input if available, otherwise the default value.
+     */
+    public function getValue(): mixed
+    {
+        return old($this->name, $this->getDefault());
     }
 
     /**
@@ -332,6 +360,14 @@ abstract class Field implements Htmlable
     }
 
     /**
+     * Alias for prefix (Splade compatibility).
+     */
+    public function prepend(string $text): static
+    {
+        return $this->prefix($text);
+    }
+
+    /**
      * Get the prefix.
      */
     public function getPrefix(): ?string
@@ -347,6 +383,14 @@ abstract class Field implements Htmlable
         $this->suffix = $suffix;
 
         return $this;
+    }
+
+    /**
+     * Alias for suffix (Splade compatibility).
+     */
+    public function append(string $text): static
+    {
+        return $this->suffix($text);
     }
 
     /**

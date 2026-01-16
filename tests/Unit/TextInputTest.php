@@ -188,3 +188,95 @@ it('can convert to array', function () {
         ->and($array['required'])->toBeTrue()
         ->and($array['default'])->toBe('test@example.com');
 });
+
+// Splade compatibility tests
+it('supports prepend as alias for prefix', function () {
+    $field = TextInput::make('price')->prepend('$');
+
+    expect($field->getPrefix())->toBe('$');
+});
+
+it('supports append as alias for suffix', function () {
+    $field = TextInput::make('price')->append('.00');
+
+    expect($field->getSuffix())->toBe('.00');
+});
+
+it('can enable date picker', function () {
+    $field = TextInput::make('birthday')->date();
+
+    expect($field->hasDate())->toBeTrue()
+        ->and($field->getDateOptions())->toBe([]);
+});
+
+it('can enable date picker with options', function () {
+    $field = TextInput::make('birthday')->date(['showMonths' => 2]);
+
+    expect($field->hasDate())->toBeTrue()
+        ->and($field->getDateOptions())->toBe(['showMonths' => 2]);
+});
+
+it('can enable time picker', function () {
+    $field = TextInput::make('start_time')->time();
+
+    expect($field->hasTime())->toBeTrue()
+        ->and($field->getTimeOptions())->toBe([]);
+});
+
+it('can enable time picker with options', function () {
+    $field = TextInput::make('start_time')->time(['enableSeconds' => true]);
+
+    expect($field->hasTime())->toBeTrue()
+        ->and($field->getTimeOptions())->toBe(['enableSeconds' => true]);
+});
+
+it('can enable both date and time', function () {
+    $field = TextInput::make('event_at')->date()->time();
+
+    expect($field->hasDate())->toBeTrue()
+        ->and($field->hasTime())->toBeTrue();
+});
+
+it('can enable range mode', function () {
+    $field = TextInput::make('dates')->date()->range();
+
+    expect($field->isRange())->toBeTrue();
+});
+
+it('can set static default date format', function () {
+    TextInput::defaultDateFormat('d/m/Y');
+
+    expect(TextInput::getDefaultDateFormat())->toBe('d/m/Y');
+
+    // Reset for other tests
+    TextInput::defaultDateFormat('Y-m-d');
+});
+
+it('can set static default time format', function () {
+    TextInput::defaultTimeFormat('g:i A');
+
+    expect(TextInput::getDefaultTimeFormat())->toBe('g:i A');
+
+    // Reset for other tests
+    TextInput::defaultTimeFormat('H:i');
+});
+
+it('can set static default datetime format', function () {
+    TextInput::defaultDatetimeFormat('d/m/Y H:i');
+
+    expect(TextInput::getDefaultDatetimeFormat())->toBe('d/m/Y H:i');
+
+    // Reset for other tests
+    TextInput::defaultDatetimeFormat('Y-m-d H:i');
+});
+
+it('can set static default flatpickr options', function () {
+    TextInput::defaultFlatpickr(['locale' => 'fr']);
+
+    $field = TextInput::make('date')->date();
+
+    expect($field->getDateOptions())->toBe(['locale' => 'fr']);
+
+    // Reset for other tests
+    TextInput::defaultFlatpickr([]);
+});

@@ -17,7 +17,35 @@ class Radio extends Field
     use CanBeInline;
     use HasOptions;
 
+    protected int $columns = 1;
+
     protected array|Closure $descriptions = [];
+
+    /**
+     * Set the number of columns for grid layout.
+     */
+    public function columns(int $columns): static
+    {
+        $this->columns = $columns;
+
+        return $this;
+    }
+
+    /**
+     * Get the number of columns.
+     */
+    public function getColumns(): int
+    {
+        return $this->columns;
+    }
+
+    /**
+     * Check if using grid layout (more than 1 column).
+     */
+    public function hasColumns(): bool
+    {
+        return $this->columns > 1;
+    }
 
     /**
      * Set descriptions for each option.

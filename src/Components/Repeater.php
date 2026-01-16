@@ -9,6 +9,8 @@ use Closure;
 
 /**
  * Repeater field component for repeatable field groups.
+ *
+ * Filament-compatible API for managing repeatable form sections.
  */
 class Repeater extends Field
 {
@@ -28,13 +30,37 @@ class Repeater extends Field
 
     protected bool $isCollapsible = false;
 
+    protected bool $isCollapsed = false;
+
     protected bool $isCloneable = false;
 
+    protected bool $isSimple = false;
+
+    protected ?Field $simpleField = null;
+
     protected ?string $addActionLabel = null;
+
+    protected ?string $deleteActionLabel = null;
+
+    protected ?string $cloneActionLabel = null;
+
+    protected ?string $reorderActionLabel = null;
+
+    protected ?string $collapseActionLabel = null;
+
+    protected ?string $expandActionLabel = null;
+
+    protected ?string $collapseAllActionLabel = null;
+
+    protected ?string $expandAllActionLabel = null;
 
     protected ?string $itemLabel = null;
 
     protected ?Closure $itemLabelUsing = null;
+
+    protected int|array|null $grid = null;
+
+    protected int|string|Closure|null $columns = null;
 
     /**
      * Set the repeater schema (fields to repeat).
@@ -181,6 +207,28 @@ class Repeater extends Field
     }
 
     /**
+     * Collapse all items by default.
+     */
+    public function collapsed(bool $condition = true): static
+    {
+        $this->isCollapsed = $condition;
+
+        if ($condition) {
+            $this->isCollapsible = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check if collapsed by default.
+     */
+    public function isCollapsed(): bool
+    {
+        return $this->isCollapsed;
+    }
+
+    /**
      * Allow cloning items.
      */
     public function cloneable(bool $condition = true): static
@@ -199,6 +247,37 @@ class Repeater extends Field
     }
 
     /**
+     * Create a simple repeater with a single field.
+     */
+    public function simple(?Field $field): static
+    {
+        $this->isSimple = $field !== null;
+        $this->simpleField = $field;
+
+        if ($field !== null) {
+            $this->schema([$field]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check if simple mode.
+     */
+    public function isSimple(): bool
+    {
+        return $this->isSimple;
+    }
+
+    /**
+     * Get the simple field.
+     */
+    public function getSimpleField(): ?Field
+    {
+        return $this->simpleField;
+    }
+
+    /**
      * Set the add action label.
      */
     public function addActionLabel(string $label): static
@@ -214,6 +293,132 @@ class Repeater extends Field
     public function getAddActionLabel(): string
     {
         return $this->addActionLabel ?? __('Add item');
+    }
+
+    /**
+     * Set the delete action label.
+     */
+    public function deleteActionLabel(string $label): static
+    {
+        $this->deleteActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the delete action label.
+     */
+    public function getDeleteActionLabel(): string
+    {
+        return $this->deleteActionLabel ?? __('Delete');
+    }
+
+    /**
+     * Set the clone action label.
+     */
+    public function cloneActionLabel(string $label): static
+    {
+        $this->cloneActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the clone action label.
+     */
+    public function getCloneActionLabel(): string
+    {
+        return $this->cloneActionLabel ?? __('Clone');
+    }
+
+    /**
+     * Set the reorder action label.
+     */
+    public function reorderActionLabel(string $label): static
+    {
+        $this->reorderActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the reorder action label.
+     */
+    public function getReorderActionLabel(): string
+    {
+        return $this->reorderActionLabel ?? __('Drag to reorder');
+    }
+
+    /**
+     * Set the collapse action label.
+     */
+    public function collapseActionLabel(string $label): static
+    {
+        $this->collapseActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the collapse action label.
+     */
+    public function getCollapseActionLabel(): string
+    {
+        return $this->collapseActionLabel ?? __('Collapse');
+    }
+
+    /**
+     * Set the expand action label.
+     */
+    public function expandActionLabel(string $label): static
+    {
+        $this->expandActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the expand action label.
+     */
+    public function getExpandActionLabel(): string
+    {
+        return $this->expandActionLabel ?? __('Expand');
+    }
+
+    /**
+     * Set the collapse all action label.
+     */
+    public function collapseAllActionLabel(string $label): static
+    {
+        $this->collapseAllActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the collapse all action label.
+     */
+    public function getCollapseAllActionLabel(): string
+    {
+        return $this->collapseAllActionLabel ?? __('Collapse all');
+    }
+
+    /**
+     * Set the expand all action label.
+     */
+    public function expandAllActionLabel(string $label): static
+    {
+        $this->expandAllActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the expand all action label.
+     */
+    public function getExpandAllActionLabel(): string
+    {
+        return $this->expandAllActionLabel ?? __('Expand all');
     }
 
     /**
@@ -250,6 +455,42 @@ class Repeater extends Field
         }
 
         return __('Item').' '.($index + 1);
+    }
+
+    /**
+     * Set the grid layout columns.
+     */
+    public function grid(int|array|null $columns): static
+    {
+        $this->grid = $columns;
+
+        return $this;
+    }
+
+    /**
+     * Get the grid columns.
+     */
+    public function getGrid(): int|array|null
+    {
+        return $this->grid;
+    }
+
+    /**
+     * Set the number of columns for the schema inside each item.
+     */
+    public function columns(int|string|Closure|null $columns): static
+    {
+        $this->columns = $columns;
+
+        return $this;
+    }
+
+    /**
+     * Get the columns for the schema.
+     */
+    public function getColumns(): int|string|null
+    {
+        return $this->evaluate($this->columns);
     }
 
     /**

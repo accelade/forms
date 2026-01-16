@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Closure;
 
 /**
- * Date picker field component.
+ * Date picker field component with Flatpickr support.
  */
 class DatePicker extends Field
 {
@@ -23,9 +23,17 @@ class DatePicker extends Field
 
     protected array|Closure $disabledDates = [];
 
-    protected bool $isNative = true;
+    protected bool $isNative = false;
 
     protected int $firstDayOfWeek = 1;
+
+    protected bool $weekNumbers = false;
+
+    protected bool $inline = false;
+
+    protected bool $enableRange = false;
+
+    protected array $flatpickrOptions = [];
 
     /**
      * Set up the field.
@@ -56,7 +64,7 @@ class DatePicker extends Field
     }
 
     /**
-     * Set the display format.
+     * Set the display format (altFormat in Flatpickr).
      */
     public function displayFormat(string $format): static
     {
@@ -68,9 +76,9 @@ class DatePicker extends Field
     /**
      * Get the display format.
      */
-    public function getDisplayFormat(): string
+    public function getDisplayFormat(): ?string
     {
-        return $this->displayFormat ?? $this->getFormat();
+        return $this->displayFormat;
     }
 
     /**
@@ -140,7 +148,7 @@ class DatePicker extends Field
     }
 
     /**
-     * Use native date input.
+     * Use native date input (disables Flatpickr).
      */
     public function native(bool $condition = true): static
     {
@@ -158,7 +166,7 @@ class DatePicker extends Field
     }
 
     /**
-     * Set the first day of the week.
+     * Set the first day of the week (0 = Sunday, 1 = Monday).
      */
     public function firstDayOfWeek(int $day): static
     {
@@ -173,6 +181,110 @@ class DatePicker extends Field
     public function getFirstDayOfWeek(): int
     {
         return $this->firstDayOfWeek;
+    }
+
+    /**
+     * Show week numbers.
+     */
+    public function weekNumbers(bool $show = true): static
+    {
+        $this->weekNumbers = $show;
+
+        return $this;
+    }
+
+    /**
+     * Check if week numbers are shown.
+     */
+    public function hasWeekNumbers(): bool
+    {
+        return $this->weekNumbers;
+    }
+
+    /**
+     * Display inline calendar.
+     */
+    public function inline(bool $inline = true): static
+    {
+        $this->inline = $inline;
+
+        return $this;
+    }
+
+    /**
+     * Check if inline mode is enabled.
+     */
+    public function isInline(): bool
+    {
+        return $this->inline;
+    }
+
+    /**
+     * Enable date range selection.
+     */
+    public function range(bool $range = true): static
+    {
+        $this->enableRange = $range;
+
+        return $this;
+    }
+
+    /**
+     * Check if range mode is enabled.
+     */
+    public function isRange(): bool
+    {
+        return $this->enableRange;
+    }
+
+    /**
+     * Set additional Flatpickr options.
+     */
+    public function flatpickr(array $options): static
+    {
+        $this->flatpickrOptions = array_merge($this->flatpickrOptions, $options);
+
+        return $this;
+    }
+
+    /**
+     * Get all Flatpickr options as array.
+     */
+    public function getFlatpickrOptions(): array
+    {
+        $options = [
+            'enableTime' => false,
+            'dateFormat' => $this->format,
+            'inline' => $this->inline,
+            'weekNumbers' => $this->weekNumbers,
+            'locale' => [
+                'firstDayOfWeek' => $this->firstDayOfWeek,
+            ],
+        ];
+
+        if ($this->displayFormat) {
+            $options['altInput'] = true;
+            $options['altFormat'] = $this->displayFormat;
+        }
+
+        if ($this->getMinDate()) {
+            $options['minDate'] = $this->getMinDate();
+        }
+
+        if ($this->getMaxDate()) {
+            $options['maxDate'] = $this->getMaxDate();
+        }
+
+        $disabledDates = $this->getDisabledDates();
+        if (! empty($disabledDates)) {
+            $options['disable'] = $disabledDates;
+        }
+
+        if ($this->enableRange) {
+            $options['mode'] = 'range';
+        }
+
+        return array_merge($options, $this->flatpickrOptions);
     }
 
     /**

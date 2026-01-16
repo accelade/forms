@@ -5,18 +5,23 @@ declare(strict_types=1);
 namespace Accelade\Forms\Components;
 
 use Accelade\Forms\Field;
+use Carbon\Carbon;
 use Closure;
 
 /**
- * Date Range Picker Component
+ * Date Range Picker Component with Flatpickr support.
  *
  * A date range picker that allows selecting start and end dates.
  */
 class DateRangePicker extends Field
 {
-    protected string|Closure|null $minDate = null;
+    protected ?string $format = null;
 
-    protected string|Closure|null $maxDate = null;
+    protected ?string $displayFormat = null;
+
+    protected Carbon|string|Closure|null $minDate = null;
+
+    protected Carbon|string|Closure|null $maxDate = null;
 
     protected string|Closure $locale = 'en';
 
@@ -28,10 +33,68 @@ class DateRangePicker extends Field
 
     protected string|Closure|null $endDatePlaceholder = null;
 
+    protected bool $isNative = false;
+
+    protected int $firstDayOfWeek = 1;
+
+    protected bool $weekNumbers = false;
+
+    protected bool $inline = false;
+
+    protected string $separator = ' to ';
+
+    protected array $flatpickrOptions = [];
+
+    /**
+     * Set up the field.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->format = config('forms.datetime.date_format', 'Y-m-d');
+    }
+
+    /**
+     * Set the date format for storing.
+     */
+    public function format(string $format): static
+    {
+        $this->format = $format;
+
+        return $this;
+    }
+
+    /**
+     * Get the date format.
+     */
+    public function getFormat(): string
+    {
+        return $this->format ?? 'Y-m-d';
+    }
+
+    /**
+     * Set the display format (altFormat in Flatpickr).
+     */
+    public function displayFormat(string $format): static
+    {
+        $this->displayFormat = $format;
+
+        return $this;
+    }
+
+    /**
+     * Get the display format.
+     */
+    public function getDisplayFormat(): ?string
+    {
+        return $this->displayFormat;
+    }
+
     /**
      * Set minimum selectable date.
      */
-    public function minDate(string|Closure $minDate): static
+    public function minDate(Carbon|string|Closure $minDate): static
     {
         $this->minDate = $minDate;
 
@@ -43,13 +106,19 @@ class DateRangePicker extends Field
      */
     public function getMinDate(): ?string
     {
-        return $this->evaluate($this->minDate);
+        $date = $this->evaluate($this->minDate);
+
+        if ($date instanceof Carbon) {
+            return $date->format('Y-m-d');
+        }
+
+        return $date;
     }
 
     /**
      * Set maximum selectable date.
      */
-    public function maxDate(string|Closure $maxDate): static
+    public function maxDate(Carbon|string|Closure $maxDate): static
     {
         $this->maxDate = $maxDate;
 
@@ -61,7 +130,13 @@ class DateRangePicker extends Field
      */
     public function getMaxDate(): ?string
     {
-        return $this->evaluate($this->maxDate);
+        $date = $this->evaluate($this->maxDate);
+
+        if ($date instanceof Carbon) {
+            return $date->format('Y-m-d');
+        }
+
+        return $date;
     }
 
     /**
@@ -152,6 +227,144 @@ class DateRangePicker extends Field
     public function getEndDatePlaceholder(): ?string
     {
         return $this->evaluate($this->endDatePlaceholder);
+    }
+
+    /**
+     * Use native date input (disables Flatpickr).
+     */
+    public function native(bool $condition = true): static
+    {
+        $this->isNative = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Check if using native input.
+     */
+    public function isNative(): bool
+    {
+        return $this->isNative;
+    }
+
+    /**
+     * Set the first day of the week (0 = Sunday, 1 = Monday).
+     */
+    public function firstDayOfWeek(int $day): static
+    {
+        $this->firstDayOfWeek = $day;
+
+        return $this;
+    }
+
+    /**
+     * Get the first day of the week.
+     */
+    public function getFirstDayOfWeek(): int
+    {
+        return $this->firstDayOfWeek;
+    }
+
+    /**
+     * Show week numbers.
+     */
+    public function weekNumbers(bool $show = true): static
+    {
+        $this->weekNumbers = $show;
+
+        return $this;
+    }
+
+    /**
+     * Check if week numbers are shown.
+     */
+    public function hasWeekNumbers(): bool
+    {
+        return $this->weekNumbers;
+    }
+
+    /**
+     * Display inline calendar.
+     */
+    public function inline(bool $inline = true): static
+    {
+        $this->inline = $inline;
+
+        return $this;
+    }
+
+    /**
+     * Check if inline mode is enabled.
+     */
+    public function isInline(): bool
+    {
+        return $this->inline;
+    }
+
+    /**
+     * Set the range separator string.
+     */
+    public function separator(string $separator): static
+    {
+        $this->separator = $separator;
+
+        return $this;
+    }
+
+    /**
+     * Get the range separator.
+     */
+    public function getSeparator(): string
+    {
+        return $this->separator;
+    }
+
+    /**
+     * Set additional Flatpickr options.
+     */
+    public function flatpickr(array $options): static
+    {
+        $this->flatpickrOptions = array_merge($this->flatpickrOptions, $options);
+
+        return $this;
+    }
+
+    /**
+     * Get all Flatpickr options as array.
+     */
+    public function getFlatpickrOptions(): array
+    {
+        $options = [
+            'mode' => 'range',
+            'enableTime' => false,
+            'dateFormat' => $this->format,
+            'inline' => $this->inline,
+            'weekNumbers' => $this->weekNumbers,
+            'showMonths' => $this->getNumberOfMonths(),
+            'locale' => [
+                'firstDayOfWeek' => $this->firstDayOfWeek,
+                'rangeSeparator' => $this->separator,
+            ],
+        ];
+
+        if ($this->displayFormat) {
+            $options['altInput'] = true;
+            $options['altFormat'] = $this->displayFormat;
+        }
+
+        if ($this->getMinDate()) {
+            $options['minDate'] = $this->getMinDate();
+        }
+
+        if ($this->getMaxDate()) {
+            $options['maxDate'] = $this->getMaxDate();
+        }
+
+        if ($this->getCloseOnSelect()) {
+            $options['closeOnSelect'] = true;
+        }
+
+        return array_merge($options, $this->flatpickrOptions);
     }
 
     /**

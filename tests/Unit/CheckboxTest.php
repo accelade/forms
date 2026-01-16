@@ -38,3 +38,25 @@ it('can be set to stacked layout', function () {
 
     expect($field->isInline())->toBeFalse();
 });
+
+// Splade compatibility - value() and falseValue() aliases
+it('can set checked value using value() alias', function () {
+    $field = Checkbox::make('status')->value('yes');
+
+    expect($field->getCheckedValue())->toBe('yes');
+});
+
+it('can set unchecked value using falseValue() alias', function () {
+    $field = Checkbox::make('status')->falseValue('no');
+
+    expect($field->getUncheckedValue())->toBe('no');
+});
+
+it('can chain value() and falseValue() methods', function () {
+    $field = Checkbox::make('newsletter')
+        ->value('1')
+        ->falseValue('0');
+
+    expect($field->getCheckedValue())->toBe('1')
+        ->and($field->getUncheckedValue())->toBe('0');
+});

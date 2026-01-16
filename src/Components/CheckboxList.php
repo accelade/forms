@@ -9,22 +9,44 @@ use Accelade\Forms\Field;
 use Closure;
 
 /**
- * Checkbox list field component for multiple selections.
+ * Checkbox list field component.
+ *
+ * Allows users to select multiple items from a predefined list.
  */
 class CheckboxList extends Field
 {
     use HasOptions;
 
-    protected int $columns = 1;
+    protected int|Closure $columns = 1;
 
-    protected array|Closure $descriptions = [];
+    protected string $gridDirection = 'column';
 
     protected bool $isBulkToggleable = false;
 
+    protected ?string $selectAllActionLabel = null;
+
+    protected ?string $deselectAllActionLabel = null;
+
+    protected ?string $searchPrompt = null;
+
+    protected int $searchDebounce = 300;
+
+    protected ?string $noSearchResultsMessage = null;
+
+    protected array|Closure $descriptions = [];
+
+    protected ?Closure $disableOptionWhen = null;
+
+    protected bool $allowHtml = false;
+
+    protected ?string $relationship = null;
+
+    protected array $pivotData = [];
+
     /**
-     * Set the number of columns.
+     * Set the number of columns for the grid layout.
      */
-    public function columns(int $columns): static
+    public function columns(int|Closure $columns): static
     {
         $this->columns = $columns;
 
@@ -36,11 +58,139 @@ class CheckboxList extends Field
      */
     public function getColumns(): int
     {
-        return $this->columns;
+        return $this->evaluate($this->columns);
     }
 
     /**
-     * Set descriptions for each option.
+     * Set the grid direction.
+     *
+     * @param  string  $direction  Either 'column' or 'row'
+     */
+    public function gridDirection(string $direction): static
+    {
+        $this->gridDirection = $direction;
+
+        return $this;
+    }
+
+    /**
+     * Get the grid direction.
+     */
+    public function getGridDirection(): string
+    {
+        return $this->gridDirection;
+    }
+
+    /**
+     * Enable bulk toggle (select all / deselect all).
+     */
+    public function bulkToggleable(bool $condition = true): static
+    {
+        $this->isBulkToggleable = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Check if bulk toggle is enabled.
+     */
+    public function isBulkToggleable(): bool
+    {
+        return $this->isBulkToggleable;
+    }
+
+    /**
+     * Set the "Select All" action label.
+     */
+    public function selectAllActionLabel(string $label): static
+    {
+        $this->selectAllActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the "Select All" action label.
+     */
+    public function getSelectAllActionLabel(): string
+    {
+        return $this->selectAllActionLabel ?? __('Select all');
+    }
+
+    /**
+     * Set the "Deselect All" action label.
+     */
+    public function deselectAllActionLabel(string $label): static
+    {
+        $this->deselectAllActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the "Deselect All" action label.
+     */
+    public function getDeselectAllActionLabel(): string
+    {
+        return $this->deselectAllActionLabel ?? __('Deselect all');
+    }
+
+    /**
+     * Set the search prompt placeholder text.
+     */
+    public function searchPrompt(?string $prompt): static
+    {
+        $this->searchPrompt = $prompt;
+
+        return $this;
+    }
+
+    /**
+     * Get the search prompt.
+     */
+    public function getSearchPrompt(): string
+    {
+        return $this->searchPrompt ?? __('Search options...');
+    }
+
+    /**
+     * Set the search debounce time in milliseconds.
+     */
+    public function searchDebounce(int $milliseconds): static
+    {
+        $this->searchDebounce = $milliseconds;
+
+        return $this;
+    }
+
+    /**
+     * Get the search debounce time.
+     */
+    public function getSearchDebounce(): int
+    {
+        return $this->searchDebounce;
+    }
+
+    /**
+     * Set the message shown when no search results are found.
+     */
+    public function noSearchResultsMessage(?string $message): static
+    {
+        $this->noSearchResultsMessage = $message;
+
+        return $this;
+    }
+
+    /**
+     * Get the no search results message.
+     */
+    public function getNoSearchResultsMessage(): string
+    {
+        return $this->noSearchResultsMessage ?? __('No results found');
+    }
+
+    /**
+     * Set descriptions for options.
      */
     public function descriptions(array|Closure $descriptions): static
     {
@@ -60,29 +210,85 @@ class CheckboxList extends Field
     /**
      * Get description for a specific option.
      */
-    public function getDescription(string $value): ?string
+    public function getDescription(string|int $value): ?string
     {
-        $descriptions = $this->getDescriptions();
-
-        return $descriptions[$value] ?? null;
+        return $this->getDescriptions()[$value] ?? null;
     }
 
     /**
-     * Enable bulk toggle (select all / deselect all).
+     * Set a callback to disable specific options.
      */
-    public function bulkToggleable(bool $condition = true): static
+    public function disableOptionWhen(?Closure $callback): static
     {
-        $this->isBulkToggleable = $condition;
+        $this->disableOptionWhen = $callback;
 
         return $this;
     }
 
     /**
-     * Check if bulk toggleable.
+     * Check if a specific option is disabled.
      */
-    public function isBulkToggleable(): bool
+    public function isOptionDisabled(string|int $value, string $label): bool
     {
-        return $this->isBulkToggleable;
+        if ($this->disableOptionWhen === null) {
+            return false;
+        }
+
+        return (bool) ($this->disableOptionWhen)($value, $label);
+    }
+
+    /**
+     * Allow HTML in option labels.
+     */
+    public function allowHtml(bool $condition = true): static
+    {
+        $this->allowHtml = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Check if HTML is allowed in labels.
+     */
+    public function isHtmlAllowed(): bool
+    {
+        return $this->allowHtml;
+    }
+
+    /**
+     * Set the relationship for model binding.
+     */
+    public function relationship(string $name, string $titleAttribute, ?Closure $modifyQueryUsing = null): static
+    {
+        $this->relationship = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get the relationship name.
+     */
+    public function getRelationship(): ?string
+    {
+        return $this->relationship;
+    }
+
+    /**
+     * Set additional pivot data for relationship.
+     */
+    public function pivotData(array $data): static
+    {
+        $this->pivotData = $data;
+
+        return $this;
+    }
+
+    /**
+     * Get the pivot data.
+     */
+    public function getPivotData(): array
+    {
+        return $this->pivotData;
     }
 
     /**

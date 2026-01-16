@@ -1,0 +1,48 @@
+{
+    "name": "accelade-forms",
+    "version": "1.0.0",
+    "description": "Accelade Forms - Form components for Laravel",
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite build --watch"
+    },
+    "dependencies": {
+        "@tiptap/core": "^2.11.0",
+        "@tiptap/extension-bubble-menu": "^2.11.0",
+        "@tiptap/extension-character-count": "^2.11.0",
+        "@tiptap/extension-color": "^2.11.0",
+        "@tiptap/extension-floating-menu": "^2.11.0",
+        "@tiptap/extension-highlight": "^2.11.0",
+        "@tiptap/extension-image": "^2.11.0",
+        "@tiptap/extension-link": "^2.11.0",
+        "@tiptap/extension-placeholder": "^2.11.0",
+        "@tiptap/extension-subscript": "^2.11.0",
+        "@tiptap/extension-superscript": "^2.11.0",
+        "@tiptap/extension-table": "^2.11.0",
+        "@tiptap/extension-table-cell": "^2.11.0",
+        "@tiptap/extension-table-header": "^2.11.0",
+        "@tiptap/extension-table-row": "^2.11.0",
+        "@tiptap/extension-text-align": "^2.11.0",
+        "@tiptap/extension-text-style": "^2.11.0",
+        "@tiptap/extension-underline": "^2.11.0",
+        "@tiptap/pm": "^2.11.0",
+        "@tiptap/starter-kit": "^2.11.0",
+        "filepond": "^4.31.0",
+        "filepond-plugin-file-validate-type": "^1.2.9",
+        "filepond-plugin-file-validate-size": "^2.2.8",
+        "filepond-plugin-image-preview": "^4.6.12",
+        "filepond-plugin-image-crop": "^2.0.6",
+        "filepond-plugin-image-resize": "^2.0.10",
+        "filepond-plugin-image-transform": "^3.8.7",
+        "filepond-plugin-image-exif-orientation": "^1.0.11",
+        "filepond-plugin-image-edit": "^1.6.3",
+        "cropperjs": "^1.6.2",
+        "flatpickr": "^4.6.13"
+    },
+    "devDependencies": {
+        "terser": "^5.44.1",
+        "typescript": "^5.7.3",
+        "vite": "^7.3.1"
+    }
+}

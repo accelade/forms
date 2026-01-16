@@ -1,19 +1,38 @@
 @props(['field'])
 
-<div class="form-field">
+@php
+    $hasPrefix = $field->getPrefix();
+    $hasSuffix = $field->getSuffix();
+    $hasAddons = $hasPrefix || $hasSuffix;
+    $isDisabled = $field->isDisabled();
+
+    // Container classes
+    $containerClasses = $hasAddons
+        ? config('forms.styles.input_wrapper', 'flex rounded-lg border border-gray-300 bg-white shadow-sm overflow-hidden focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-800')
+        : config('forms.styles.input_container', 'relative rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-150 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-800');
+
+    if ($isDisabled) {
+        $containerClasses .= ' ' . config('forms.styles.input_container_disabled', 'bg-gray-50 dark:bg-gray-900 cursor-not-allowed');
+    }
+
+    // Input classes - transparent background
+    $inputClasses = config('forms.styles.input', 'block w-full px-3 py-2 text-sm bg-transparent text-gray-900 placeholder-gray-400 border-0 focus:ring-0 focus:outline-none disabled:text-gray-500 disabled:cursor-not-allowed dark:text-gray-100 dark:placeholder-gray-500 dark:disabled:text-gray-600');
+@endphp
+
+<div class="form-field text-input-field {{ config('forms.styles.field', 'mb-4') }}">
     @if($field->getLabel())
-        <label for="{{ $field->getId() }}" class="{{ config('forms.styles.label', 'block text-sm font-medium text-gray-700 dark:text-gray-300') }}">
+        <label for="{{ $field->getId() }}" class="{{ config('forms.styles.label', 'block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5') }}">
             {{ $field->getLabel() }}
             @if($field->isRequired())
-                <span class="text-red-500">*</span>
+                <span class="{{ config('forms.styles.required', 'text-red-500 dark:text-red-400 ms-0.5') }}">*</span>
             @endif
         </label>
     @endif
 
-    <div class="mt-1 {{ $field->getPrefix() || $field->getSuffix() ? 'flex rounded-lg shadow-sm' : '' }}">
-        @if($field->getPrefix())
-            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm">
-                {{ $field->getPrefix() }}
+    <div class="{{ $containerClasses }}">
+        @if($hasPrefix)
+            <span class="{{ config('forms.styles.prefix', 'inline-flex items-center px-3 text-sm text-gray-500 bg-gray-50 border-e border-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600') }}">
+                {!! $field->getPrefix() !!}
             </span>
         @endif
 
@@ -24,7 +43,7 @@
             @if($field->getPlaceholder()) placeholder="{{ $field->getPlaceholder() }}" @endif
             @if($field->getDefault() !== null) value="{{ $field->getDefault() }}" @endif
             @if($field->isRequired()) required @endif
-            @if($field->isDisabled()) disabled @endif
+            @if($isDisabled) disabled @endif
             @if($field->isReadonly()) readonly @endif
             @if($field->hasAutofocus()) autofocus @endif
             @if($field->getMinValue() !== null) min="{{ $field->getMinValue() }}" @endif
@@ -35,13 +54,17 @@
             @if($field->getInputMode()) inputmode="{{ $field->getInputMode() }}" @endif
             @if($field->getAutocomplete()) autocomplete="{{ $field->getAutocomplete() }}" @endif
             @if($field->getDatalist()) list="{{ $field->getDatalist() }}" @endif
-            class="{{ config('forms.styles.input', 'block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm') }} {{ $field->getPrefix() ? 'rounded-l-none' : '' }} {{ $field->getSuffix() ? 'rounded-r-none' : '' }}"
+            @if($field->getMask()) data-mask="{{ $field->getMask() }}" @endif
+            @if($field->hasDate()) data-date="{{ json_encode($field->getDateOptions()) }}" @endif
+            @if($field->hasTime()) data-time="{{ json_encode($field->getTimeOptions()) }}" @endif
+            @if($field->isRange()) data-range @endif
+            class="{{ $inputClasses }}"
             {!! $field->getExtraAttributesString() !!}
         >
 
-        @if($field->getSuffix())
-            <span class="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm">
-                {{ $field->getSuffix() }}
+        @if($hasSuffix)
+            <span class="{{ config('forms.styles.suffix', 'inline-flex items-center px-3 text-sm text-gray-500 bg-gray-50 border-s border-gray-300 dark:bg-gray-700 dark:text-gray-400 dark:border-gray-600') }}">
+                {!! $field->getSuffix() !!}
             </span>
         @endif
     </div>
@@ -55,7 +78,7 @@
     @endif
 
     @if($field->getHelperText())
-        <p class="{{ config('forms.styles.hint', 'text-sm text-gray-500 dark:text-gray-400 mt-1') }}">
+        <p class="{{ config('forms.styles.hint', 'text-sm text-gray-500 dark:text-gray-400 mt-1.5') }}">
             {{ $field->getHelperText() }}
         </p>
     @endif

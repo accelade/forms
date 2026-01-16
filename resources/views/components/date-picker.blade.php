@@ -1,37 +1,96 @@
 @props(['field'])
 
-<div class="form-field">
+@php
+    $id = $field->getId();
+    $name = $field->getName();
+    $statePath = $field->getStatePath();
+    $isDisabled = $field->isDisabled();
+    $isReadOnly = $field->isReadonly();
+    $isRequired = $field->isRequired();
+    $placeholder = $field->getPlaceholder();
+    $isNative = $field->isNative();
+    $isInline = $field->isInline();
+    $flatpickrOptions = $field->getFlatpickrOptions();
+
+    // Container classes
+    $containerClasses = config('forms.styles.input_container', 'relative rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-150 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-800');
+
+    if ($isDisabled) {
+        $containerClasses .= ' ' . config('forms.styles.input_container_disabled', 'bg-gray-50 dark:bg-gray-900 cursor-not-allowed');
+    }
+
+    // Input classes
+    $inputClasses = config('forms.styles.input', 'block w-full px-3 py-2 text-sm bg-transparent text-gray-900 placeholder-gray-400 border-0 focus:ring-0 focus:outline-none disabled:text-gray-500 disabled:cursor-not-allowed dark:text-gray-100 dark:placeholder-gray-500 dark:disabled:text-gray-600');
+@endphp
+
+<div {{ $attributes->class(['form-field date-picker-field', config('forms.styles.field', 'mb-4')]) }}
+    @if(!$isNative)
+        data-flatpickr="{{ json_encode($flatpickrOptions) }}"
+    @endif
+>
     @if($field->getLabel())
-        <label for="{{ $field->getId() }}" class="{{ config('forms.styles.label', 'block text-sm font-medium text-gray-700 dark:text-gray-300') }}">
+        <label for="{{ $id }}" class="{{ config('forms.styles.label', 'block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5') }}">
             {{ $field->getLabel() }}
-            @if($field->isRequired())
-                <span class="text-red-500">*</span>
+            @if($isRequired)
+                <span class="{{ config('forms.styles.required', 'text-red-500 dark:text-red-400 ms-0.5') }}">*</span>
             @endif
         </label>
     @endif
 
-    <div class="mt-1">
-        <input
-            type="date"
-            name="{{ $field->getName() }}"
-            id="{{ $field->getId() }}"
-            @if($field->getPlaceholder()) placeholder="{{ $field->getPlaceholder() }}" @endif
-            @if($field->getDefault()) value="{{ $field->getDefault() }}" @endif
-            @if($field->isRequired()) required @endif
-            @if($field->isDisabled()) disabled @endif
-            @if($field->isReadonly()) readonly @endif
-            @if($field->hasAutofocus()) autofocus @endif
-            @if($field->getMinDate()) min="{{ $field->getMinDate() }}" @endif
-            @if($field->getMaxDate()) max="{{ $field->getMaxDate() }}" @endif
-            class="{{ config('forms.styles.input', 'block w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm') }}"
-            {!! $field->getExtraAttributesString() !!}
-        >
+    <div class="date-picker-wrapper {{ $isInline ? 'inline-block' : '' }}">
+        @if($isNative)
+            {{-- Native browser input --}}
+            <div class="{{ $containerClasses }}">
+                <input
+                    type="date"
+                    id="{{ $id }}"
+                    name="{{ $statePath }}"
+                    @if($field->getDefault()) value="{{ $field->getDefault() }}" @endif
+                    @if($placeholder) placeholder="{{ $placeholder }}" @endif
+                    @if($isDisabled) disabled @endif
+                    @if($isReadOnly) readonly @endif
+                    @if($isRequired) required @endif
+                    @if($field->getMinDate()) min="{{ $field->getMinDate() }}" @endif
+                    @if($field->getMaxDate()) max="{{ $field->getMaxDate() }}" @endif
+                    {{ $attributes->whereStartsWith('wire:') }}
+                    class="{{ $inputClasses }}"
+                    {!! $field->getExtraAttributesString() !!}
+                />
+            </div>
+        @else
+            {{-- Flatpickr enhanced input --}}
+            <div class="{{ $containerClasses }} flex items-center">
+                <input
+                    type="text"
+                    id="{{ $id }}"
+                    name="{{ $statePath }}"
+                    @if($field->getDefault()) value="{{ $field->getDefault() }}" @endif
+                    @if($placeholder) placeholder="{{ $placeholder }}" @endif
+                    @if($isDisabled) disabled @endif
+                    @if($isReadOnly) readonly @endif
+                    @if($isRequired) required @endif
+                    {{ $attributes->whereStartsWith('wire:') }}
+                    class="date-picker-input flatpickr-input {{ $inputClasses }} pe-10"
+                    {!! $field->getExtraAttributesString() !!}
+                />
+                @if(!$isInline)
+                    <button type="button" class="date-picker-toggle absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" tabindex="-1">
+                        {{-- Calendar icon --}}
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </button>
+                @endif
+            </div>
+        @endif
     </div>
 
     @if($field->getHelperText())
-        <p class="{{ config('forms.styles.hint', 'text-sm text-gray-500 dark:text-gray-400 mt-1') }}">
-            {{ $field->getHelperText() }}
-        </p>
+        <p class="{{ config('forms.styles.hint', 'text-sm text-gray-500 dark:text-gray-400 mt-1.5') }}">{{ $field->getHelperText() }}</p>
+    @endif
+
+    @if($field->getHint())
+        <p class="{{ config('forms.styles.hint', 'text-sm text-gray-500 dark:text-gray-400 mt-1.5') }}">{{ $field->getHint() }}</p>
     @endif
 
     @error($field->getName())

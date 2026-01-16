@@ -55,6 +55,22 @@ class Checkbox extends Field
     }
 
     /**
+     * Alias for checkedValue() (Splade compatibility).
+     */
+    public function value(mixed $value): static
+    {
+        return $this->checkedValue($value);
+    }
+
+    /**
+     * Alias for uncheckedValue() (Splade compatibility).
+     */
+    public function falseValue(mixed $value): static
+    {
+        return $this->uncheckedValue($value);
+    }
+
+    /**
      * Get the view name.
      */
     protected function getView(): string

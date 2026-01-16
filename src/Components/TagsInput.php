@@ -9,6 +9,8 @@ use Closure;
 
 /**
  * Tags input field component.
+ *
+ * Filament-compatible API with color support, reorderable tags, and prefix/suffix.
  */
 class TagsInput extends Field
 {
@@ -21,6 +23,30 @@ class TagsInput extends Field
     protected ?int $minTags = null;
 
     protected bool $allowDuplicates = false;
+
+    protected ?string $color = 'primary';
+
+    protected bool $isReorderable = false;
+
+    protected ?string $tagPrefix = null;
+
+    protected ?string $tagSuffix = null;
+
+    protected ?string $splitKeys = null;
+
+    /**
+     * Color presets mapping.
+     *
+     * @var array<string, string>
+     */
+    public const COLOR_PRESETS = [
+        'danger' => 'danger',
+        'gray' => 'gray',
+        'info' => 'info',
+        'primary' => 'primary',
+        'success' => 'success',
+        'warning' => 'warning',
+    ];
 
     /**
      * Set tag suggestions for autocomplete.
@@ -110,6 +136,105 @@ class TagsInput extends Field
     public function allowsDuplicates(): bool
     {
         return $this->allowDuplicates;
+    }
+
+    /**
+     * Set the tag color.
+     * Accepts color presets (danger, success, warning, info, primary, gray).
+     */
+    public function color(?string $color): static
+    {
+        $this->color = $color;
+
+        return $this;
+    }
+
+    /**
+     * Get the tag color.
+     */
+    public function getColor(): ?string
+    {
+        return $this->color;
+    }
+
+    /**
+     * Check if color is a preset.
+     */
+    public function isColorPreset(): bool
+    {
+        return $this->color !== null && array_key_exists($this->color, self::COLOR_PRESETS);
+    }
+
+    /**
+     * Enable drag-to-reorder functionality.
+     */
+    public function reorderable(bool $condition = true): static
+    {
+        $this->isReorderable = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Check if reorderable.
+     */
+    public function isReorderable(): bool
+    {
+        return $this->isReorderable;
+    }
+
+    /**
+     * Set a prefix for tag display (visual only).
+     */
+    public function tagPrefix(?string $prefix): static
+    {
+        $this->tagPrefix = $prefix;
+
+        return $this;
+    }
+
+    /**
+     * Get the tag prefix.
+     */
+    public function getTagPrefix(): ?string
+    {
+        return $this->tagPrefix;
+    }
+
+    /**
+     * Set a suffix for tag display (visual only).
+     */
+    public function tagSuffix(?string $suffix): static
+    {
+        $this->tagSuffix = $suffix;
+
+        return $this;
+    }
+
+    /**
+     * Get the tag suffix.
+     */
+    public function getTagSuffix(): ?string
+    {
+        return $this->tagSuffix;
+    }
+
+    /**
+     * Set keys that will split tags (e.g., ',', 'Tab').
+     */
+    public function splitKeys(?string $keys): static
+    {
+        $this->splitKeys = $keys;
+
+        return $this;
+    }
+
+    /**
+     * Get split keys.
+     */
+    public function getSplitKeys(): ?string
+    {
+        return $this->splitKeys;
     }
 
     /**

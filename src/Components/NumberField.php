@@ -24,10 +24,6 @@ class NumberField extends Field
 
     protected string|Closure|null $locale = null;
 
-    protected string|Closure|null $prefix = null;
-
-    protected string|Closure|null $suffix = null;
-
     /**
      * Set format options for number formatting.
      *

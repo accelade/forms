@@ -8,6 +8,8 @@ use Accelade\Forms\Field;
 
 /**
  * Key-value pairs field component.
+ *
+ * Filament-compatible API for managing key-value pair data.
  */
 class KeyValue extends Field
 {
@@ -24,6 +26,12 @@ class KeyValue extends Field
     protected bool $isDeletable = true;
 
     protected bool $isReorderable = false;
+
+    protected bool $editableKeys = true;
+
+    protected bool $editableValues = true;
+
+    protected ?string $addActionLabel = null;
 
     /**
      * Set the key column label.
@@ -149,6 +157,60 @@ class KeyValue extends Field
     public function isReorderable(): bool
     {
         return $this->isReorderable;
+    }
+
+    /**
+     * Set whether keys are editable.
+     */
+    public function editableKeys(bool $condition = true): static
+    {
+        $this->editableKeys = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Check if keys are editable.
+     */
+    public function hasEditableKeys(): bool
+    {
+        return $this->editableKeys;
+    }
+
+    /**
+     * Set whether values are editable.
+     */
+    public function editableValues(bool $condition = true): static
+    {
+        $this->editableValues = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Check if values are editable.
+     */
+    public function hasEditableValues(): bool
+    {
+        return $this->editableValues;
+    }
+
+    /**
+     * Set custom label for add button.
+     */
+    public function addActionLabel(?string $label): static
+    {
+        $this->addActionLabel = $label;
+
+        return $this;
+    }
+
+    /**
+     * Get the add action label.
+     */
+    public function getAddActionLabel(): string
+    {
+        return $this->addActionLabel ?? __('Add Row');
     }
 
     /**

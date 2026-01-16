@@ -29,6 +29,22 @@ class TextInput extends Field
 
     protected ?string $mask = null;
 
+    // Date/time picker options (Splade compatibility)
+    protected bool|array $dateOptions = false;
+
+    protected bool|array $timeOptions = false;
+
+    protected bool $isRange = false;
+
+    // Static default formats
+    protected static ?string $defaultDateFormat = null;
+
+    protected static ?string $defaultTimeFormat = null;
+
+    protected static ?string $defaultDatetimeFormat = null;
+
+    protected static ?array $defaultFlatpickrOptions = null;
+
     /**
      * Set the input type.
      */
@@ -192,6 +208,140 @@ class TextInput extends Field
     public function getMask(): ?string
     {
         return $this->mask;
+    }
+
+    /**
+     * Enable date picker functionality (Splade compatibility).
+     */
+    public function date(bool|array $options = true): static
+    {
+        $this->dateOptions = $options;
+
+        return $this;
+    }
+
+    /**
+     * Check if date picker is enabled.
+     */
+    public function hasDate(): bool
+    {
+        return $this->dateOptions !== false;
+    }
+
+    /**
+     * Get date picker options.
+     */
+    public function getDateOptions(): array
+    {
+        if ($this->dateOptions === true) {
+            return static::$defaultFlatpickrOptions ?? [];
+        }
+
+        return is_array($this->dateOptions) ? $this->dateOptions : [];
+    }
+
+    /**
+     * Enable time picker functionality (Splade compatibility).
+     */
+    public function time(bool|array $options = true): static
+    {
+        $this->timeOptions = $options;
+
+        return $this;
+    }
+
+    /**
+     * Check if time picker is enabled.
+     */
+    public function hasTime(): bool
+    {
+        return $this->timeOptions !== false;
+    }
+
+    /**
+     * Get time picker options.
+     */
+    public function getTimeOptions(): array
+    {
+        if ($this->timeOptions === true) {
+            return static::$defaultFlatpickrOptions ?? [];
+        }
+
+        return is_array($this->timeOptions) ? $this->timeOptions : [];
+    }
+
+    /**
+     * Enable date range mode (Splade compatibility).
+     */
+    public function range(bool $range = true): static
+    {
+        $this->isRange = $range;
+
+        return $this;
+    }
+
+    /**
+     * Check if range mode is enabled.
+     */
+    public function isRange(): bool
+    {
+        return $this->isRange;
+    }
+
+    /**
+     * Set default date format globally.
+     */
+    public static function defaultDateFormat(string $format): void
+    {
+        static::$defaultDateFormat = $format;
+    }
+
+    /**
+     * Get default date format.
+     */
+    public static function getDefaultDateFormat(): string
+    {
+        return static::$defaultDateFormat ?? config('forms.datetime.date_format', 'Y-m-d');
+    }
+
+    /**
+     * Set default time format globally.
+     */
+    public static function defaultTimeFormat(string $format): void
+    {
+        static::$defaultTimeFormat = $format;
+    }
+
+    /**
+     * Get default time format.
+     */
+    public static function getDefaultTimeFormat(): string
+    {
+        return static::$defaultTimeFormat ?? config('forms.datetime.time_format', 'H:i');
+    }
+
+    /**
+     * Set default datetime format globally.
+     */
+    public static function defaultDatetimeFormat(string $format): void
+    {
+        static::$defaultDatetimeFormat = $format;
+    }
+
+    /**
+     * Get default datetime format.
+     */
+    public static function getDefaultDatetimeFormat(): string
+    {
+        return static::$defaultDatetimeFormat ?? config('forms.datetime.datetime_format', 'Y-m-d H:i');
+    }
+
+    /**
+     * Set default Flatpickr options globally.
+     */
+    public static function defaultFlatpickr(array $options = []): void
+    {
+        static::$defaultFlatpickrOptions = $options;
     }
 
     /**
