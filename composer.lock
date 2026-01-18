@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "05a35d3cc5557ef12a6f75ade24ec325",
+    "content-hash": "604fbcbc684d368d03b2f6674e499ab5",
     "packages": [
         {
             "name": "accelade/accelade",
@@ -90,6 +90,86 @@
                 }
             ],
             "time": "2026-01-18T08:04:07+00:00"
+        },
+        {
+            "name": "accelade/schemas",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/accelade/schemas.git",
+                "reference": "b42c32809080b4a81803ee8c4f47629a846d6621"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/accelade/schemas/zipball/b42c32809080b4a81803ee8c4f47629a846d6621",
+                "reference": "b42c32809080b4a81803ee8c4f47629a846d6621",
+                "shasum": ""
+            },
+            "require": {
+                "accelade/accelade": "^1.0.0",
+                "illuminate/support": "^11.0|^12.0",
+                "illuminate/view": "^11.0|^12.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.18",
+                "orchestra/testbench": "^9.0|^10.0",
+                "pestphp/pest": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Schema": "Accelade\\Schemas\\Facades\\Schema"
+                    },
+                    "providers": [
+                        "Accelade\\Schemas\\SchemasServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Accelade\\Schemas\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fady Mondy",
+                    "email": "info@3x1.io",
+                    "homepage": "https://3x1.io",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Schema layout components for Accelade - organize forms with sections, tabs, grids, wizards and more",
+            "homepage": "https://github.com/accelade/schemas",
+            "keywords": [
+                "Forms",
+                "accelade",
+                "blade",
+                "grid",
+                "laravel",
+                "layout",
+                "schemas",
+                "section",
+                "tabs",
+                "wizard"
+            ],
+            "support": {
+                "issues": "https://github.com/accelade/schemas/issues",
+                "source": "https://github.com/accelade/schemas/tree/v1.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/fadymondy",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-01-18T13:37:45+00:00"
         },
         {
             "name": "blade-ui-kit/blade-icons",

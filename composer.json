@@ -24,7 +24,7 @@
     "require": {
         "php": "^8.2",
         "accelade/accelade": "^1.0.0",
-        "accelade/schemas": "*",
+        "accelade/schemas": "^1.0.0",
         "illuminate/support": "^11.0|^12.0",
         "illuminate/view": "^11.0|^12.0",
         "illuminate/validation": "^11.0|^12.0"
