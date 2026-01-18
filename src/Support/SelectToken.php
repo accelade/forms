@@ -47,4 +47,48 @@ class SelectToken
             '_token' => $token,
         ]);
     }
+
+    /**
+     * Generate the URL for fetching a single record.
+     *
+     * Used for pre-filling edit forms with record data.
+     */
+    public static function recordUrl(string $modelClass, array $options = []): string
+    {
+        $token = self::generate($modelClass, $options);
+
+        $baseUrl = route('forms.select-options.show');
+
+        return $baseUrl.'?'.http_build_query([
+            '_token' => $token,
+        ]);
+    }
+
+    /**
+     * Generate the URL for creating a new record.
+     */
+    public static function createUrl(string $modelClass, array $options = []): string
+    {
+        $token = self::generate($modelClass, $options);
+
+        $baseUrl = route('forms.select-options.store');
+
+        return $baseUrl.'?'.http_build_query([
+            '_token' => $token,
+        ]);
+    }
+
+    /**
+     * Generate the URL for updating an existing record.
+     */
+    public static function updateUrl(string $modelClass, array $options = []): string
+    {
+        $token = self::generate($modelClass, $options);
+
+        $baseUrl = route('forms.select-options.update');
+
+        return $baseUrl.'?'.http_build_query([
+            '_token' => $token,
+        ]);
+    }
 }

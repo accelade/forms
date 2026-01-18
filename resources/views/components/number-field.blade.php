@@ -43,9 +43,7 @@
             @if($isDisabled || $isReadOnly) disabled @endif
             aria-label="Decrease value"
         >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-            </svg>
+            <x-accelade::icon name="heroicon-o-minus" size="sm" :showFallback="false" />
         </button>
 
         <input
@@ -69,9 +67,7 @@
             @if($isDisabled || $isReadOnly) disabled @endif
             aria-label="Increase value"
         >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
+            <x-accelade::icon name="heroicon-o-plus" size="sm" :showFallback="false" />
         </button>
 
         @if($suffix)

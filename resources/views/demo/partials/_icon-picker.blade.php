@@ -5,42 +5,20 @@
     use Accelade\Forms\Components\IconPicker;
     use Accelade\Forms\Enums\IconSet;
 
+    // Blade Icons mode - lazy loading from any installed Blade Icons package
+    $bladeIconsPicker = IconPicker::make('blade_icon')
+        ->label('Blade Icons (Lazy Loading)')
+        ->bladeIcons()
+        ->perPage(48)
+        ->searchable()
+        ->gridColumns(8);
+
     // Emoji only picker (default)
     $emojiPicker = IconPicker::make('emoji_icon')
         ->label('Emoji Icon')
         ->sets([IconSet::Emoji])
         ->searchable()
         ->showIconName()
-        ->gridColumns(8);
-
-    // All icon sets
-    $allSetsPicker = IconPicker::make('all_icons')
-        ->label('Choose Icon')
-        ->sets([IconSet::Emoji, IconSet::Boxicons, IconSet::Heroicons, IconSet::Lucide])
-        ->defaultSet(IconSet::Emoji)
-        ->searchable()
-        ->showIconName()
-        ->gridColumns(8);
-
-    // Boxicons only
-    $boxiconsPicker = IconPicker::make('boxicon')
-        ->label('Boxicons')
-        ->sets([IconSet::Boxicons])
-        ->searchable()
-        ->gridColumns(8);
-
-    // Heroicons only
-    $heroiconsPicker = IconPicker::make('heroicon')
-        ->label('Heroicons')
-        ->sets([IconSet::Heroicons])
-        ->searchable()
-        ->gridColumns(8);
-
-    // Lucide only
-    $lucidePicker = IconPicker::make('lucide_icon')
-        ->label('Lucide Icons')
-        ->sets([IconSet::Lucide])
-        ->searchable()
         ->gridColumns(8);
 @endphp
 
@@ -50,21 +28,33 @@
         <h3 class="text-lg font-semibold" style="color: var(--docs-text);">Icon Picker</h3>
     </div>
     <p class="text-sm mb-6" style="color: var(--docs-text-muted);">
-        Select icons from multiple icon libraries including Emoji, Boxicons, Heroicons, and Lucide. Supports searching, categories, and keyboard navigation.
+        Select icons from Emoji or any installed Blade Icons package. Supports searching, categories, and keyboard navigation.
     </p>
 
     <div class="space-y-6 mb-6">
-        {{-- All Icon Sets --}}
-        <div class="rounded-xl p-4 border border-violet-500/30" style="background: rgba(139, 92, 246, 0.1);">
+        {{-- Blade Icons Mode --}}
+        <div class="rounded-xl p-4 border border-pink-500/30" style="background: rgba(236, 72, 153, 0.1);">
             <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
-                <span class="text-xs px-2 py-1 bg-violet-500/20 text-violet-500 rounded">All Sets</span>
-                Multiple Icon Libraries
+                <span class="text-xs px-2 py-1 bg-pink-500/20 text-pink-500 rounded">Blade Icons</span>
+                Lazy Loading with Infinite Scroll
             </h4>
             <p class="text-xs mb-3" style="color: var(--docs-text-muted);">
-                Switch between Emoji, Boxicons, Heroicons, and Lucide icon sets using tabs.
+                Automatically detects all installed Blade Icons packages. Icons load on-demand (48 at a time) as you scroll. Search icons by name across the selected set.
             </p>
 
-            {!! $allSetsPicker !!}
+            {!! $bladeIconsPicker !!}
+
+            <div class="mt-4 p-3 rounded-lg border border-neutral-200 dark:border-neutral-700" style="background: var(--docs-bg);">
+                <h5 class="text-xs font-semibold mb-2" style="color: var(--docs-text);">Install Icon Packages</h5>
+                <p class="text-xs mb-2" style="color: var(--docs-text-muted);">
+                    Install any Blade Icons package to use with the icon picker:
+                </p>
+                <div class="space-y-1 text-xs font-mono" style="color: var(--docs-text-muted);">
+                    <div><code class="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800">composer require blade-ui-kit/blade-heroicons</code></div>
+                    <div><code class="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800">composer require mallardduck/blade-boxicons</code></div>
+                    <div><code class="px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800">composer require owenvoke/blade-fontawesome</code></div>
+                </div>
+            </div>
         </div>
 
         {{-- Emoji Only --}}
@@ -79,45 +69,6 @@
 
             {!! $emojiPicker !!}
         </div>
-
-        {{-- Boxicons --}}
-        <div class="rounded-xl p-4 border border-blue-500/30" style="background: rgba(59, 130, 246, 0.1);">
-            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
-                <span class="text-xs px-2 py-1 bg-blue-500/20 text-blue-500 rounded">Boxicons</span>
-                Boxicons Library
-            </h4>
-            <p class="text-xs mb-3" style="color: var(--docs-text-muted);">
-                Premium vector icons with regular and solid variants. Requires Boxicons CSS.
-            </p>
-
-            {!! $boxiconsPicker !!}
-        </div>
-
-        {{-- Heroicons --}}
-        <div class="rounded-xl p-4 border border-indigo-500/30" style="background: rgba(99, 102, 241, 0.1);">
-            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
-                <span class="text-xs px-2 py-1 bg-indigo-500/20 text-indigo-500 rounded">Heroicons</span>
-                Heroicons by Tailwind
-            </h4>
-            <p class="text-xs mb-3" style="color: var(--docs-text-muted);">
-                Beautiful hand-crafted SVG icons by the makers of Tailwind CSS. Outline and solid styles.
-            </p>
-
-            {!! $heroiconsPicker !!}
-        </div>
-
-        {{-- Lucide --}}
-        <div class="rounded-xl p-4 border border-emerald-500/30" style="background: rgba(16, 185, 129, 0.1);">
-            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
-                <span class="text-xs px-2 py-1 bg-emerald-500/20 text-emerald-500 rounded">Lucide</span>
-                Lucide Icons
-            </h4>
-            <p class="text-xs mb-3" style="color: var(--docs-text-muted);">
-                Community-driven fork of Feather icons with 1000+ icons. Clean and consistent.
-            </p>
-
-            {!! $lucidePicker !!}
-        </div>
     </div>
 
     {{-- Code Examples --}}
@@ -128,38 +79,20 @@
 use Accelade\Forms\Components\IconPicker;
 use Accelade\Forms\Enums\IconSet;
 
+// Blade Icons mode - lazy loading with infinite scroll
+// Automatically detects all installed Blade Icons packages
+IconPicker::make('icon')
+    ->label('Select Icon')
+    ->bladeIcons()          // Enable Blade Icons mode
+    ->perPage(48)           // Icons per page (default: 48)
+    ->searchable();
+
 // Emoji only (using IconSet enum)
 IconPicker::make('icon')
     ->label('Choose Emoji')
     ->sets([IconSet::Emoji])
-    ->searchable();
-
-// All icon sets with tabs
-IconPicker::make('icon')
-    ->label('Choose Icon')
-    ->sets([IconSet::Emoji, IconSet::Boxicons, IconSet::Heroicons, IconSet::Lucide])
-    ->defaultSet(IconSet::Emoji)
     ->searchable()
     ->showIconName();
-
-// Single icon library
-IconPicker::make('icon')
-    ->label('Heroicons')
-    ->sets([IconSet::Heroicons])
-    ->searchable()
-    ->gridColumns(10);
-
-// Multiple libraries (no emoji)
-IconPicker::make('icon')
-    ->label('Icon Libraries')
-    ->sets([IconSet::Boxicons, IconSet::Heroicons, IconSet::Lucide])
-    ->defaultSet(IconSet::Heroicons);
-
-// String values still work for backward compatibility
-IconPicker::make('icon')
-    ->label('Lucide Icons')
-    ->sets(['lucide'])
-    ->disabled();
         </x-accelade::code-block>
     </div>
 
@@ -170,40 +103,20 @@ IconPicker::make('icon')
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="rounded-lg p-3" style="background: var(--docs-bg);">
                 <h5 class="text-sm font-medium mb-2 flex items-center gap-2" style="color: var(--docs-text);">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+                    Blade Icons
+                </h5>
+                <p class="text-xs" style="color: var(--docs-text-muted);">
+                    Any installed Blade Icons package (Heroicons, Feather, Font Awesome, etc.). Lazy loaded with infinite scroll.
+                </p>
+            </div>
+
+            <div class="rounded-lg p-3" style="background: var(--docs-bg);">
+                <h5 class="text-sm font-medium mb-2 flex items-center gap-2" style="color: var(--docs-text);">
                     <span class="text-lg">😀</span> Emoji
                 </h5>
                 <p class="text-xs" style="color: var(--docs-text-muted);">
                     Native Unicode emoji. No external dependencies. Categories: Smileys, Animals, Food, Activities, Travel, Objects, Symbols.
-                </p>
-            </div>
-
-            <div class="rounded-lg p-3" style="background: var(--docs-bg);">
-                <h5 class="text-sm font-medium mb-2 flex items-center gap-2" style="color: var(--docs-text);">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v16H4z"/></svg>
-                    Boxicons
-                </h5>
-                <p class="text-xs" style="color: var(--docs-text-muted);">
-                    700+ premium vector icons. Regular and solid styles. Inline SVG - no external dependencies required.
-                </p>
-            </div>
-
-            <div class="rounded-lg p-3" style="background: var(--docs-bg);">
-                <h5 class="text-sm font-medium mb-2 flex items-center gap-2" style="color: var(--docs-text);">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                    Heroicons
-                </h5>
-                <p class="text-xs" style="color: var(--docs-text-muted);">
-                    By Tailwind CSS creators. Outline variants. Inline SVG - no external dependencies required.
-                </p>
-            </div>
-
-            <div class="rounded-lg p-3" style="background: var(--docs-bg);">
-                <h5 class="text-sm font-medium mb-2 flex items-center gap-2" style="color: var(--docs-text);">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                    Lucide
-                </h5>
-                <p class="text-xs" style="color: var(--docs-text-muted);">
-                    1000+ community icons. Fork of Feather. Inline SVG - no external dependencies required.
                 </p>
             </div>
         </div>

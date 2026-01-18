@@ -79,7 +79,7 @@ class RichEditor extends Field
                 return array_values(array_diff($group, $this->disabledToolbarButtons));
             }
 
-            return in_array($group, $this->disabledToolbarButtons) ? null : $group;
+            return in_array($group, $this->disabledToolbarButtons, true) ? null : $group;
         }, $this->toolbarButtons);
     }
 

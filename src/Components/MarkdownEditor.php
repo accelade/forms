@@ -302,7 +302,7 @@ class MarkdownEditor extends Field
      */
     public function hasFileAttachments(): bool
     {
-        return $this->fileAttachmentsEnabled && in_array('attachFiles', $this->flattenToolbarButtons());
+        return $this->fileAttachmentsEnabled && in_array('attachFiles', $this->flattenToolbarButtons(), true);
     }
 
     /**

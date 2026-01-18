@@ -75,10 +75,7 @@
                 />
                 @if(!$isInline)
                     <button type="button" class="date-picker-toggle absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" tabindex="-1">
-                        {{-- Calendar icon --}}
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
+                        <x-accelade::icon name="heroicon-o-calendar" size="md" :showFallback="false" />
                     </button>
                 @endif
             </div>

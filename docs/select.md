@@ -362,6 +362,164 @@ Select::make('locked')
 |--------|-------------|
 | `defaultChoices($options)` | Set default Choices.js options globally |
 
+## Creating Options in a Modal
+
+You can define a custom form that allows users to create new records directly from the select dropdown. This is useful when users need to add a new option that doesn't exist yet.
+
+```php
+use Accelade\Forms\Components\Select;
+use Accelade\Forms\Components\TextInput;
+
+Select::make('author_id')
+    ->label('Author')
+    ->model(User::class, 'name', 'id')
+    ->createOptionForm([
+        TextInput::make('name')
+            ->label('Full Name')
+            ->required(),
+        TextInput::make('email')
+            ->label('Email Address')
+            ->required(),
+    ])
+    ->createOptionModalHeading('Create New Author')
+    ->createOptionModalSubmitButtonLabel('Create Author');
+```
+
+The form opens in a modal when the user clicks the "+" button. Upon form submission, the new record is created and automatically selected.
+
+### Customizing Option Creation
+
+You can customize the creation process using the `createOptionUsing()` method, which should return the primary key of the newly created record:
+
+```php
+Select::make('author_id')
+    ->model(User::class, 'name', 'id')
+    ->createOptionForm([
+        TextInput::make('name')->required(),
+        TextInput::make('email')->required(),
+    ])
+    ->createOptionUsing(function (array $data): int {
+        return auth()->user()->team->members()->create($data)->getKey();
+    });
+```
+
+## Editing the Selected Option in a Modal
+
+You can define a custom form that allows users to edit the currently selected record:
+
+```php
+Select::make('author_id')
+    ->label('Author')
+    ->model(User::class, 'name', 'id')
+    ->editOptionForm([
+        TextInput::make('name')
+            ->label('Full Name')
+            ->required(),
+        TextInput::make('email')
+            ->label('Email Address')
+            ->required(),
+    ])
+    ->editOptionModalHeading('Edit Author')
+    ->editOptionModalSubmitButtonLabel('Update Author');
+```
+
+The form opens in a modal when the user clicks the pencil icon (visible when an option is selected). The form fields are automatically pre-filled with the current record's data.
+
+### Customizing Option Updates
+
+You can customize the update process using the `updateOptionUsing()` method:
+
+```php
+Select::make('author_id')
+    ->model(User::class, 'name', 'id')
+    ->editOptionForm([
+        TextInput::make('name')->required(),
+        TextInput::make('email')->required(),
+    ])
+    ->updateOptionUsing(function (array $data, $record) {
+        $record->update($data);
+    });
+```
+
+## Complete Create/Edit Example
+
+Here's a full example with both create and edit functionality:
+
+```php
+Select::make('user_id')
+    ->label('User')
+    ->model(User::class, 'name', 'id')
+    ->limit(20)
+    ->allowClear()
+    ->emptyOptionLabel('Select user...')
+    ->createOptionForm([
+        TextInput::make('name')
+            ->label('Full Name')
+            ->required(),
+        TextInput::make('email')
+            ->label('Email Address')
+            ->required(),
+        TextInput::make('password')
+            ->label('Password')
+            ->required()
+            ->type('password'),
+    ])
+    ->createOptionModalHeading('Create New User')
+    ->createOptionModalSubmitButtonLabel('Create User')
+    ->editOptionForm([
+        TextInput::make('name')
+            ->label('Full Name')
+            ->required(),
+        TextInput::make('email')
+            ->label('Email Address')
+            ->required(),
+    ])
+    ->editOptionModalHeading('Edit User')
+    ->editOptionModalSubmitButtonLabel('Update User');
+```
+
+## Success Notifications
+
+By default, success notifications are shown after creating or updating a record. You can customize the notification messages:
+
+```php
+Select::make('user_id')
+    ->model(User::class, 'name', 'id')
+    ->createOptionForm([...])
+    ->editOptionForm([...])
+    ->createSuccessNotificationTitle('User Created')
+    ->createSuccessNotificationBody('The new user has been created and selected.')
+    ->updateSuccessNotificationTitle('User Updated')
+    ->updateSuccessNotificationBody('The user information has been saved.');
+```
+
+To disable notifications entirely:
+
+```php
+Select::make('user_id')
+    ->model(User::class, 'name', 'id')
+    ->createOptionForm([...])
+    ->successNotification(false);
+```
+
+## Model-Based Options with Pagination
+
+For large datasets, use the `model()` method to enable server-side search and pagination:
+
+```php
+Select::make('user_id')
+    ->label('User')
+    ->model(User::class, 'name', 'id')
+    ->limit(20)           // Show 20 options per page
+    ->searchable()        // Enable server-side search
+    ->allowClear();       // Allow clearing the selection
+```
+
+This automatically:
+- Paginates options (infinite scroll)
+- Searches on the server when the user types
+- Generates secure API endpoints for data fetching
+
 ## Blade Component Attributes
 
 | Attribute | Type | Description |
@@ -377,3 +535,26 @@ Select::make('locked')
 | `choices` | array | Choices.js configuration |
 | `required` | bool | Mark as required |
 | `disabled` | bool | Disable select |
+
+## Create/Edit Modal Methods
+
+| Method | Description |
+|--------|-------------|
+| `createOptionForm($fields)` | Define form fields for creating new options |
+| `createOptionUsing($callback)` | Custom callback for creating records |
+| `createOptionModalHeading($heading)` | Modal title for create form |
+| `createOptionModalSubmitButtonLabel($label)` | Submit button text for create form |
+| `editOptionForm($fields)` | Define form fields for editing selected option |
+| `updateOptionUsing($callback)` | Custom callback for updating records |
+| `editOptionModalHeading($heading)` | Modal title for edit form |
+| `editOptionModalSubmitButtonLabel($label)` | Submit button text for edit form |
+
+## Notification Methods
+
+| Method | Description |
+|--------|-------------|
+| `successNotification($enabled)` | Enable/disable success notifications (default: true) |
+| `createSuccessNotificationTitle($title)` | Title for create success notification |
+| `createSuccessNotificationBody($body)` | Body text for create success notification |
+| `updateSuccessNotificationTitle($title)` | Title for update success notification |
+| `updateSuccessNotificationBody($body)` | Body text for update success notification |

@@ -216,6 +216,19 @@ abstract class Field implements Htmlable
     }
 
     /**
+     * Get the default value with record context.
+     * This is used when the default is a closure that needs the record.
+     */
+    public function getDefaultWithRecord(mixed $record = null): mixed
+    {
+        if ($this->default instanceof Closure) {
+            return ($this->default)($record);
+        }
+
+        return $this->default;
+    }
+
+    /**
      * Get the current value for this field.
      *
      * Returns old input if available, otherwise the default value.
@@ -342,7 +355,7 @@ abstract class Field implements Htmlable
     {
         $rules = $this->rules;
 
-        if ($this->isRequired && ! in_array('required', $rules)) {
+        if ($this->isRequired && ! in_array('required', $rules, true)) {
             array_unshift($rules, 'required');
         }
 
@@ -445,7 +458,21 @@ abstract class Field implements Htmlable
     protected function evaluate(mixed $value): mixed
     {
         if ($value instanceof Closure) {
-            return app()->call($value);
+            try {
+                // Check if the closure requires parameters
+                $reflection = new \ReflectionFunction($value);
+                $requiredParams = $reflection->getNumberOfRequiredParameters();
+
+                // If the closure requires parameters, return null (it needs record context)
+                if ($requiredParams > 0) {
+                    return null;
+                }
+
+                return $value();
+            } catch (\Throwable) {
+                // If reflection or invocation fails, return null
+                return null;
+            }
         }
 
         return $value;
@@ -499,6 +526,14 @@ abstract class Field implements Htmlable
      */
     public function toArray(): array
     {
+        return $this->toArrayWithRecord(null);
+    }
+
+    /**
+     * Serialize to array for JSON output with record context.
+     */
+    public function toArrayWithRecord(mixed $record = null): array
+    {
         return [
             'type' => class_basename(static::class),
             'name' => $this->name,
@@ -506,7 +541,7 @@ abstract class Field implements Htmlable
             'label' => $this->getLabel(),
             'placeholder' => $this->getPlaceholder(),
             'hint' => $this->getHint(),
-            'default' => $this->getDefault(),
+            'default' => $this->getDefaultWithRecord($record),
             'required' => $this->isRequired,
             'disabled' => $this->isDisabled,
             'readonly' => $this->isReadonly,

@@ -1,6 +1,8 @@
 # Icon Picker
 
-The IconPicker component provides an icon selection grid with support for multiple icon libraries including Emoji, Boxicons, Heroicons, and Lucide icons.
+The IconPicker component provides an icon selection grid with support for multiple icon libraries. It supports two modes:
+- **Embedded Icons**: Pre-defined icons embedded in the page (emoji, boxicons, heroicons, lucide)
+- **Blade Icons**: Dynamically loaded icons from any Blade Icons package with lazy loading and search
 
 ## Basic Usage
 
@@ -11,7 +13,73 @@ IconPicker::make('icon')
     ->label('Select Icon');
 ```
 
-## Icon Sets
+## Blade Icons Mode
+
+Enable Blade Icons mode to use any installed Blade Icons package (Heroicons, Tabler Icons, Feather Icons, etc.):
+
+```php
+IconPicker::make('icon')
+    ->label('Icon')
+    ->bladeIcons() // Enable Blade Icons mode
+    ->perPage(50)  // Icons per page (default: 50)
+```
+
+### How It Works
+
+When Blade Icons mode is enabled:
+
+1. **Automatic Detection**: The component automatically detects all installed Blade Icons packages
+2. **Lazy Loading**: Icons are loaded on-demand as the user scrolls (50 icons at a time by default)
+3. **Search**: Users can search icons by name across the selected set
+4. **Set Switching**: Users can switch between different icon sets (Heroicons, Tabler, etc.)
+
+### Installing Blade Icons Packages
+
+Install any Blade Icons package via Composer:
+
+```bash
+# Heroicons
+composer require blade-ui-kit/blade-heroicons
+
+# Tabler Icons
+composer require blade-ui-kit/blade-tabler-icons
+
+# Feather Icons
+composer require blade-ui-kit/blade-feather-icons
+
+# Font Awesome
+composer require owenvoke/blade-fontawesome
+
+# Bootstrap Icons
+composer require davidhsianern/blade-bootstrap-icons
+```
+
+See [Blade Icons](https://blade-ui-kit.com/blade-icons) for a full list of available icon packages.
+
+### Value Format
+
+When using Blade Icons mode, the selected value is stored in the format `set:icon-name`:
+
+```
+heroicons:academic-cap
+tabler-icons:arrow-right
+feathericons:check
+```
+
+To render the selected icon in your Blade templates:
+
+```blade
+@php
+    [$set, $name] = explode(':', $icon);
+@endphp
+
+<x-dynamic-component :component="$set . '-' . $name" class="w-6 h-6" />
+
+{{-- Or use the @svg directive --}}
+@svg($icon, 'w-6 h-6')
+```
+
+## Embedded Icon Sets
 
 The IconPicker supports multiple icon libraries. Use the `IconSet` enum for type-safe icon set selection:
 
@@ -136,6 +204,31 @@ IconPicker::make('icons')
 | `maxItems($count)` | Limit selections |
 | `minItems($count)` | Require minimum |
 | `placeholder($text)` | Set placeholder |
+| `bladeIcons()` | Enable Blade Icons mode with lazy loading |
+| `perPage($count)` | Set number of icons per page (default: 50) |
+
+## API Endpoints (Blade Icons Mode)
+
+When using Blade Icons mode, the component uses these API endpoints:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /accelade/api/icons/sets` | List all available icon sets |
+| `GET /accelade/api/icons/{set}` | Get icons from a set (paginated) |
+| `GET /accelade/api/icons/search` | Search icons by name |
+| `GET /accelade/api/icons/svg/{icon}` | Get SVG for a specific icon |
+
+### Query Parameters
+
+**GET /accelade/api/icons/{set}**
+- `offset` - Start position (default: 0)
+- `limit` - Number of icons to return (default: 50)
+- `search` - Filter icons by name
+
+**GET /accelade/api/icons/search**
+- `q` - Search query
+- `set` - Limit search to a specific set
+- `limit` - Maximum results (default: 50)
 
 ## IconSet Enum
 

@@ -23,15 +23,30 @@ use Illuminate\Support\Facades\Route;
 $apiPrefix = config('forms.api.prefix', 'api/forms');
 $apiMiddleware = config('forms.api.middleware', ['web']);
 
-// Select options routes (with select token validation)
+// Stateful routes (GET requests - use web middleware for session)
 Route::prefix($apiPrefix)
     ->middleware(array_merge($apiMiddleware, [ValidateSelectToken::class]))
     ->group(function () {
         // Select options API for paginated/searchable options
-        // All configuration (model, attributes) is encrypted in the token
-        // The model is NOT exposed in the URL for security
         Route::get('/select-options', [SelectOptionsController::class, 'index'])
             ->name('forms.select-options');
+
+        // Get single record for edit form pre-fill
+        Route::get('/select-options/record', [SelectOptionsController::class, 'show'])
+            ->name('forms.select-options.show');
+    });
+
+// Stateless routes (POST/PUT requests - exclude CSRF, protected by encrypted token)
+Route::prefix($apiPrefix)
+    ->middleware([ValidateSelectToken::class])
+    ->group(function () {
+        // Create a new record
+        Route::post('/select-options/record', [SelectOptionsController::class, 'store'])
+            ->name('forms.select-options.store');
+
+        // Update an existing record
+        Route::put('/select-options/record', [SelectOptionsController::class, 'update'])
+            ->name('forms.select-options.update');
     });
 
 // File upload routes (with upload token validation)

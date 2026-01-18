@@ -502,7 +502,7 @@ class TipTapEditor extends Field
      */
     public function getGridLayouts(): array
     {
-        return $this->gridLayouts ?: [
+        return $this->gridLayouts !== [] ? $this->gridLayouts : [
             'two-columns',
             'three-columns',
             'four-columns',

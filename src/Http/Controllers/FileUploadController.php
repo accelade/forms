@@ -29,150 +29,200 @@ class FileUploadController extends Controller
      */
     public function store(Request $request): Response|JsonResponse
     {
-        // Check if uploads are disabled in demo mode
-        if (config('forms.file_upload.upload_in_demo', false)) {
-            $message = config('forms.file_upload.demo_message', "You can't upload files in demo mode");
-
-            return response()->json([
-                'error' => $message,
-                'success' => false,
-            ], 403);
+        $demoError = $this->checkDemoMode();
+        if ($demoError !== null) {
+            return $demoError;
         }
 
         $payload = $request->input('_upload_token_payload', []);
-
         if (empty($payload)) {
-            return response()->json([
-                'error' => 'Invalid upload request',
-                'success' => false,
-            ], 400);
+            return $this->errorResponse('Invalid upload request', 400);
         }
 
-        // Get configuration from token payload
-        $disk = $payload['disk'] ?? 'public';
-        $directory = $payload['directory'] ?? 'uploads';
-        $visibility = $payload['visibility'] ?? 'public';
-        $maxSize = $payload['max_size'] ?? null;
-        $acceptedTypes = $payload['accepted_types'] ?? [];
-        $preserveFilenames = $payload['preserve_filenames'] ?? false;
+        $file = $this->extractUploadedFile($request);
+        if (! $file) {
+            return $this->errorResponse('No file uploaded', 400);
+        }
 
-        // Check if file was uploaded
-        // FilePond sends as 'filepond' by default, but with image transform plugins it sends as 'filepond_file'
-        // Also check common field names 'file' and the input name
+        if (! $file->isValid()) {
+            return $this->errorResponse('Invalid file upload', 400);
+        }
+
+        $sizeError = $this->validateFileSize($file, $payload['max_size'] ?? null);
+        if ($sizeError !== null) {
+            return $sizeError;
+        }
+
+        $typeError = $this->validateFileType($file, $payload['accepted_types'] ?? []);
+        if ($typeError !== null) {
+            return $typeError;
+        }
+
+        return $this->storeFile($file, $payload);
+    }
+
+    /**
+     * Check if demo mode is enabled and return error if so.
+     */
+    protected function checkDemoMode(): ?JsonResponse
+    {
+        if (! config('forms.file_upload.upload_in_demo', false)) {
+            return null;
+        }
+
+        $message = config('forms.file_upload.demo_message', "You can't upload files in demo mode");
+
+        return $this->errorResponse($message, 403);
+    }
+
+    /**
+     * Extract the uploaded file from the request.
+     */
+    protected function extractUploadedFile(Request $request): mixed
+    {
         $file = $request->file('filepond')
             ?? $request->file('filepond_file')
             ?? $request->file('file');
 
-        // If still not found, check all uploaded files
-        if (! $file) {
-            $allFiles = $request->allFiles();
-            if (! empty($allFiles)) {
-                // Get the first uploaded file regardless of field name
-                $file = reset($allFiles);
-                // Handle nested arrays (e.g., files[0])
-                if (is_array($file)) {
-                    $file = reset($file);
-                }
+        if ($file) {
+            return $file;
+        }
+
+        $allFiles = $request->allFiles();
+        if (empty($allFiles)) {
+            return null;
+        }
+
+        $file = reset($allFiles);
+
+        return is_array($file) ? reset($file) : $file;
+    }
+
+    /**
+     * Validate file size against maximum allowed.
+     */
+    protected function validateFileSize(mixed $file, ?int $maxSize): ?JsonResponse
+    {
+        if ($maxSize === null) {
+            return null;
+        }
+
+        $fileSizeKb = $file->getSize() / 1024;
+        if ($fileSizeKb <= $maxSize) {
+            return null;
+        }
+
+        return $this->errorResponse('File size exceeds maximum allowed ('.$maxSize.' KB)', 422);
+    }
+
+    /**
+     * Validate file type against accepted types.
+     */
+    protected function validateFileType(mixed $file, array $acceptedTypes): ?JsonResponse
+    {
+        if (empty($acceptedTypes)) {
+            return null;
+        }
+
+        $mimeType = $file->getMimeType();
+        $extension = $file->getClientOriginalExtension();
+
+        if ($this->isFileTypeAllowed($mimeType, $extension, $acceptedTypes)) {
+            return null;
+        }
+
+        return $this->errorResponse('File type not allowed', 422);
+    }
+
+    /**
+     * Check if a file type is allowed.
+     */
+    protected function isFileTypeAllowed(string $mimeType, string $extension, array $acceptedTypes): bool
+    {
+        foreach ($acceptedTypes as $type) {
+            if ($this->matchesMimeOrExtension($mimeType, $extension, $type)) {
+                return true;
             }
         }
 
-        if (! $file) {
-            return response()->json([
-                'error' => 'No file uploaded',
-                'success' => false,
-            ], 400);
+        return false;
+    }
+
+    /**
+     * Check if MIME type or extension matches an accepted type.
+     */
+    protected function matchesMimeOrExtension(string $mimeType, string $extension, string $type): bool
+    {
+        if (! str_contains($type, '/')) {
+            return strtolower($extension) === strtolower(ltrim($type, '.'));
         }
 
-        // Validate file
-        if (! $file->isValid()) {
-            return response()->json([
-                'error' => 'Invalid file upload',
-                'success' => false,
-            ], 400);
+        if ($type === $mimeType) {
+            return true;
         }
 
-        // Validate file size
-        if ($maxSize !== null) {
-            $fileSizeKb = $file->getSize() / 1024;
-            if ($fileSizeKb > $maxSize) {
-                return response()->json([
-                    'error' => 'File size exceeds maximum allowed ('.$maxSize.' KB)',
-                    'success' => false,
-                ], 422);
-            }
+        if (str_ends_with($type, '/*')) {
+            return str_starts_with($mimeType, substr($type, 0, -1));
         }
 
-        // Validate file type
-        if (! empty($acceptedTypes)) {
-            $mimeType = $file->getMimeType();
-            $extension = $file->getClientOriginalExtension();
+        return false;
+    }
 
-            $isAllowed = false;
-            foreach ($acceptedTypes as $type) {
-                // Check MIME type (e.g., image/*)
-                if (str_contains($type, '/')) {
-                    if ($type === $mimeType) {
-                        $isAllowed = true;
-                        break;
-                    }
-                    // Handle wildcard (e.g., image/*)
-                    if (str_ends_with($type, '/*')) {
-                        $prefix = substr($type, 0, -1);
-                        if (str_starts_with($mimeType, $prefix)) {
-                            $isAllowed = true;
-                            break;
-                        }
-                    }
-                } else {
-                    // Check extension (e.g., .pdf or pdf)
-                    $ext = ltrim($type, '.');
-                    if (strtolower($extension) === strtolower($ext)) {
-                        $isAllowed = true;
-                        break;
-                    }
-                }
-            }
+    /**
+     * Store the file and return the response.
+     */
+    protected function storeFile(mixed $file, array $payload): Response|JsonResponse
+    {
+        $disk = $payload['disk'] ?? 'public';
+        $directory = $payload['directory'] ?? 'uploads';
+        $visibility = $payload['visibility'] ?? 'public';
+        $preserveFilenames = $payload['preserve_filenames'] ?? false;
 
-            if (! $isAllowed) {
-                return response()->json([
-                    'error' => 'File type not allowed',
-                    'success' => false,
-                ], 422);
-            }
-        }
+        $filename = $this->generateFilename($file, $disk, $directory, $preserveFilenames);
 
-        // Generate filename
-        if ($preserveFilenames) {
-            $filename = $file->getClientOriginalName();
-            // Ensure unique filename by adding timestamp if file exists
-            $baseName = pathinfo($filename, PATHINFO_FILENAME);
-            $extension = pathinfo($filename, PATHINFO_EXTENSION);
-            $counter = 1;
-
-            while (Storage::disk($disk)->exists($directory.'/'.$filename)) {
-                $filename = $baseName.'-'.$counter.'.'.$extension;
-                $counter++;
-            }
-        } else {
-            $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
-        }
-
-        // Store the file
         $path = $file->storeAs($directory, $filename, [
             'disk' => $disk,
             'visibility' => $visibility,
         ]);
 
         if ($path === false) {
-            return response()->json([
-                'error' => 'Failed to store file',
-                'success' => false,
-            ], 500);
+            return $this->errorResponse('Failed to store file', 500);
         }
 
-        // Return the path as plain text for FilePond
-        return response($path, 200)
-            ->header('Content-Type', 'text/plain');
+        return response($path, 200)->header('Content-Type', 'text/plain');
+    }
+
+    /**
+     * Generate filename for the uploaded file.
+     */
+    protected function generateFilename(mixed $file, string $disk, string $directory, bool $preserveFilenames): string
+    {
+        if (! $preserveFilenames) {
+            return Str::uuid().'.'.$file->getClientOriginalExtension();
+        }
+
+        $filename = $file->getClientOriginalName();
+        $baseName = pathinfo($filename, PATHINFO_FILENAME);
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        $counter = 1;
+
+        while (Storage::disk($disk)->exists($directory.'/'.$filename)) {
+            $filename = $baseName.'-'.$counter.'.'.$extension;
+            $counter++;
+        }
+
+        return $filename;
+    }
+
+    /**
+     * Return a JSON error response.
+     */
+    protected function errorResponse(string $message, int $status): JsonResponse
+    {
+        return response()->json([
+            'error' => $message,
+            'success' => false,
+        ], $status);
     }
 
     /**

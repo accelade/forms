@@ -20,7 +20,7 @@ class Select extends Field
 
     protected ?string $emptyOptionLabel = null;
 
-    protected bool $isNative = false;
+    protected bool $isNative = true;
 
     protected ?Closure $getOptionLabelUsing = null;
 
@@ -160,6 +160,24 @@ class Select extends Field
 
     protected ?string $editOptionModalSubmitButtonLabel = null;
 
+    // Success notification options
+    protected bool $successNotification = true;
+
+    protected ?string $createSuccessTitle = null;
+
+    protected ?string $createSuccessBody = null;
+
+    protected ?string $updateSuccessTitle = null;
+
+    protected ?string $updateSuccessBody = null;
+
+    // Actions for create/edit
+    protected ?\Accelade\Actions\Action $createAction = null;
+
+    protected ?\Accelade\Actions\Action $editAction = null;
+
+    protected bool $manageOptionActions = false;
+
     /**
      * Set up the field.
      */
@@ -246,6 +264,20 @@ class Select extends Field
     public function isNative(): bool
     {
         return $this->isNative;
+    }
+
+    /**
+     * Make the field searchable (overrides trait to also disable native mode).
+     */
+    public function searchable(bool $condition = true): static
+    {
+        $this->isSearchable = $condition;
+
+        if ($condition) {
+            $this->isNative = false;
+        }
+
+        return $this;
     }
 
     /**
@@ -730,6 +762,9 @@ class Select extends Field
             'hasEditOptionForm' => $this->hasEditOptionForm(),
             'editOptionModalHeading' => $this->getEditOptionModalHeading(),
             'editOptionModalSubmitButtonLabel' => $this->getEditOptionModalSubmitButtonLabel(),
+            'recordUrl' => $this->getRecordUrl(),
+            'createUrl' => $this->getCreateUrl(),
+            'updateUrl' => $this->getUpdateUrl(),
             // Pagination options
             'infiniteScroll' => $this->hasInfiniteScroll(),
             'showAllOptions' => $this->showAllOptions,
@@ -737,6 +772,12 @@ class Select extends Field
             'hasModel' => $this->hasModel(),
             'searchUrl' => $this->getSearchUrl(),
             'loadMoreMessage' => __('Loading more...'),
+            // Notification options
+            'successNotification' => $this->hasSuccessNotification(),
+            'createSuccessTitle' => $this->getCreateSuccessNotificationTitle(),
+            'createSuccessBody' => $this->getCreateSuccessNotificationBody(),
+            'updateSuccessTitle' => $this->getUpdateSuccessNotificationTitle(),
+            'updateSuccessBody' => $this->getUpdateSuccessNotificationBody(),
         ];
     }
 
@@ -1413,6 +1454,118 @@ class Select extends Field
     }
 
     /**
+     * Get the URL for fetching a single record for editing.
+     */
+    public function getRecordUrl(): ?string
+    {
+        // Only generate record URL if we have an edit form and a model
+        if (! $this->hasEditOptionForm() || ! $this->modelClass) {
+            return null;
+        }
+
+        // Determine which attributes to fetch based on edit form fields
+        $editAttributes = $this->getEditFormFieldNames();
+
+        return \Accelade\Forms\Support\SelectToken::recordUrl(
+            $this->modelClass,
+            [
+                'value_attribute' => $this->getModelValueAttribute(),
+                'edit_attributes' => $editAttributes,
+            ]
+        );
+    }
+
+    /**
+     * Get the field names from the edit form.
+     *
+     * @return array<string>
+     */
+    protected function getEditFormFieldNames(): array
+    {
+        $form = $this->getEditOptionForm();
+
+        if (empty($form)) {
+            return [];
+        }
+
+        $names = [];
+        foreach ($form as $field) {
+            if ($field instanceof Field) {
+                $names[] = $field->getName();
+            }
+        }
+
+        return $names;
+    }
+
+    /**
+     * Get the field names from the create form.
+     *
+     * @return array<string>
+     */
+    protected function getCreateFormFieldNames(): array
+    {
+        $form = $this->getCreateOptionForm();
+
+        if (empty($form)) {
+            return [];
+        }
+
+        $names = [];
+        foreach ($form as $field) {
+            if ($field instanceof Field) {
+                $names[] = $field->getName();
+            }
+        }
+
+        return $names;
+    }
+
+    /**
+     * Get the URL for creating a new record.
+     */
+    public function getCreateUrl(): ?string
+    {
+        // Only generate create URL if we have a create form and a model
+        if (! $this->hasCreateOptionForm() || ! $this->modelClass) {
+            return null;
+        }
+
+        $createAttributes = $this->getCreateFormFieldNames();
+
+        return \Accelade\Forms\Support\SelectToken::createUrl(
+            $this->modelClass,
+            [
+                'label_attribute' => $this->getModelLabelAttribute(),
+                'value_attribute' => $this->getModelValueAttribute(),
+                'create_attributes' => $createAttributes,
+            ]
+        );
+    }
+
+    /**
+     * Get the URL for updating an existing record.
+     */
+    public function getUpdateUrl(): ?string
+    {
+        // Only generate update URL if we have an edit form and a model
+        if (! $this->hasEditOptionForm() || ! $this->modelClass) {
+            return null;
+        }
+
+        $editAttributes = $this->getEditFormFieldNames();
+
+        return \Accelade\Forms\Support\SelectToken::updateUrl(
+            $this->modelClass,
+            [
+                'label_attribute' => $this->getModelLabelAttribute(),
+                'value_attribute' => $this->getModelValueAttribute(),
+                'edit_attributes' => $editAttributes,
+            ]
+        );
+    }
+
+    /**
      * Set the column to search on.
      */
     public function searchColumn(string $column): static
@@ -1710,10 +1863,298 @@ class Select extends Field
     }
 
     /**
+     * Enable or disable success notification after create/update.
+     */
+    public function successNotification(bool $condition = true): static
+    {
+        $this->successNotification = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Check if success notification is enabled.
+     */
+    public function hasSuccessNotification(): bool
+    {
+        return $this->successNotification;
+    }
+
+    /**
+     * Set the create success notification title.
+     */
+    public function createSuccessNotificationTitle(string $title): static
+    {
+        $this->createSuccessTitle = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get the create success notification title.
+     */
+    public function getCreateSuccessNotificationTitle(): string
+    {
+        return $this->createSuccessTitle ?? __('Created');
+    }
+
+    /**
+     * Set the create success notification body.
+     */
+    public function createSuccessNotificationBody(string $body): static
+    {
+        $this->createSuccessBody = $body;
+
+        return $this;
+    }
+
+    /**
+     * Get the create success notification body.
+     */
+    public function getCreateSuccessNotificationBody(): string
+    {
+        return $this->createSuccessBody ?? __('Record created successfully.');
+    }
+
+    /**
+     * Set the update success notification title.
+     */
+    public function updateSuccessNotificationTitle(string $title): static
+    {
+        $this->updateSuccessTitle = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get the update success notification title.
+     */
+    public function getUpdateSuccessNotificationTitle(): string
+    {
+        return $this->updateSuccessTitle ?? __('Updated');
+    }
+
+    /**
+     * Set the update success notification body.
+     */
+    public function updateSuccessNotificationBody(string $body): static
+    {
+        $this->updateSuccessBody = $body;
+
+        return $this;
+    }
+
+    /**
+     * Get the update success notification body.
+     */
+    public function getUpdateSuccessNotificationBody(): string
+    {
+        return $this->updateSuccessBody ?? __('Record updated successfully.');
+    }
+
+    /**
+     * Enable manage option actions (both create and edit with default configuration).
+     * This sets up Actions with proper modals for creating/editing options.
+     */
+    public function manageOptionActions(bool $condition = true): static
+    {
+        $this->manageOptionActions = $condition;
+
+        if ($condition) {
+            $this->setupDefaultManageActions();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Check if manage option actions are enabled.
+     */
+    public function hasManageOptionActions(): bool
+    {
+        return $this->manageOptionActions;
+    }
+
+    /**
+     * Set up default create/edit actions based on model configuration.
+     */
+    protected function setupDefaultManageActions(): void
+    {
+        $this->setupDefaultCreateAction();
+        $this->setupDefaultEditAction();
+    }
+
+    /**
+     * Setup the default create action.
+     */
+    protected function setupDefaultCreateAction(): void
+    {
+        if (! $this->hasCreateOptionForm() || $this->createAction !== null) {
+            return;
+        }
+
+        $schema = $this->getCreateOptionForm() ?? [];
+        $callback = $this->getCreateOptionAction();
+        $modelClass = $this->modelClass;
+        $valueAttr = $this->getModelValueAttribute();
+        $labelAttr = $this->getModelLabelAttribute();
+        $hasModel = $this->hasModel();
+
+        $this->createAction = \Accelade\Actions\CreateAction::make('create-option')
+            ->label(__('Create'))
+            ->icon('heroicon-o-plus')
+            ->iconButton()
+            ->size('xs')
+            ->color('gray')
+            ->modalHeading($this->getCreateOptionModalHeading())
+            ->modalSubmitActionLabel($this->getCreateOptionModalSubmitButtonLabel())
+            ->schema($schema)
+            ->action(function (array $data) use ($callback, $modelClass, $valueAttr, $labelAttr, $hasModel) {
+                if ($callback) {
+                    return $callback($data);
+                }
+
+                if ($hasModel && $modelClass) {
+                    $model = $modelClass::create($data);
+
+                    return [
+                        'value' => $model->{$valueAttr},
+                        'label' => $model->{$labelAttr},
+                    ];
+                }
+
+                return null;
+            });
+    }
+
+    /**
+     * Setup the default edit action.
+     */
+    protected function setupDefaultEditAction(): void
+    {
+        if (! $this->hasEditOptionForm() || $this->editAction !== null) {
+            return;
+        }
+
+        $schema = $this->getEditOptionForm() ?? [];
+        $callback = $this->getUpdateOptionAction();
+        $modelClass = $this->modelClass;
+        $valueAttr = $this->getModelValueAttribute();
+        $labelAttr = $this->getModelLabelAttribute();
+        $hasModel = $this->hasModel();
+
+        $this->editAction = \Accelade\Actions\EditAction::make('edit-option')
+            ->label(__('Edit'))
+            ->icon('heroicon-o-pencil-square')
+            ->iconButton()
+            ->size('xs')
+            ->color('gray')
+            ->modalHeading($this->getEditOptionModalHeading())
+            ->modalSubmitActionLabel($this->getEditOptionModalSubmitButtonLabel())
+            ->schema($schema)
+            ->action(function (array $data, mixed $record) use ($callback, $modelClass, $valueAttr, $labelAttr, $hasModel) {
+                if ($callback) {
+                    return $callback($data, $record);
+                }
+
+                if ($hasModel && $record && $modelClass) {
+                    $model = $modelClass::find($record);
+                    if ($model) {
+                        $model->update($data);
+
+                        return [
+                            'value' => $model->{$valueAttr},
+                            'label' => $model->{$labelAttr},
+                        ];
+                    }
+                }
+
+                return null;
+            });
+    }
+
+    /**
+     * Set the create action.
+     */
+    public function createAction(\Accelade\Actions\Action $action): static
+    {
+        $this->createAction = $action;
+        $this->manageOptionActions = true;
+
+        return $this;
+    }
+
+    /**
+     * Get the create action.
+     */
+    public function getCreateAction(): ?\Accelade\Actions\Action
+    {
+        return $this->createAction;
+    }
+
+    /**
+     * Check if create action is set.
+     */
+    public function hasCreateAction(): bool
+    {
+        return $this->createAction !== null;
+    }
+
+    /**
+     * Set the edit action.
+     */
+    public function editAction(\Accelade\Actions\Action $action): static
+    {
+        $this->editAction = $action;
+        $this->manageOptionActions = true;
+
+        return $this;
+    }
+
+    /**
+     * Get the edit action.
+     */
+    public function getEditAction(): ?\Accelade\Actions\Action
+    {
+        return $this->editAction;
+    }
+
+    /**
+     * Check if edit action is set.
+     */
+    public function hasEditAction(): bool
+    {
+        return $this->editAction !== null;
+    }
+
+    /**
      * Get the view name.
      */
     protected function getView(): string
     {
         return 'forms::components.select';
+    }
+
+    /**
+     * Serialize to array for JSON output with record context.
+     */
+    public function toArrayWithRecord(mixed $record = null): array
+    {
+        // Format options for JavaScript
+        $formattedOptions = [];
+        foreach ($this->getOptions() as $value => $label) {
+            $formattedOptions[] = [
+                'value' => (string) $value,
+                'label' => $label,
+            ];
+        }
+
+        return array_merge(parent::toArrayWithRecord($record), [
+            'options' => $formattedOptions,
+            'multiple' => $this->isMultiple(),
+            'searchable' => $this->isSearchable(),
+            'native' => $this->isNative(),
+            'emptyOptionLabel' => $this->getEmptyOptionLabel(),
+        ]);
     }
 }
