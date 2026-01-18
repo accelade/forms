@@ -249,6 +249,54 @@ TextInput::make('email')
 
 You can also use Form Request validation alongside component rules.
 
+## Documentation
+
+Detailed documentation for each component is available in the [docs](docs/) directory:
+
+### Getting Started
+- [Getting Started](docs/getting-started.md) - Installation and basic usage
+- [API Reference](docs/api-reference.md) - Complete API documentation
+
+### Form Components
+- [Form](docs/form.md) - Form wrapper component
+- [Group](docs/group.md) - Field grouping
+- [Submit](docs/submit.md) - Submit button
+
+### Text Inputs
+- [Text Input](docs/text-input.md) - Text, email, password, URL inputs
+- [Textarea](docs/textarea.md) - Multi-line text with autosize
+- [Number Field](docs/number-field.md) - Numeric input with controls
+
+### Selection Components
+- [Select](docs/select.md) - Dropdown with search, multiple, remote options
+- [Checkbox](docs/checkbox.md) - Single checkbox
+- [Checkbox List](docs/checkbox-list.md) - Multiple checkbox selection
+- [Radio](docs/radio.md) - Radio button groups
+- [Toggle](docs/toggle.md) - Toggle switch
+- [Toggle Buttons](docs/toggle-buttons.md) - Button-style toggles
+
+### Rich Content Editors
+- [Rich Editor](docs/rich-editor.md) - WYSIWYG editor
+- [TipTap Editor](docs/tiptap-editor.md) - TipTap-based editor
+- [Markdown Editor](docs/markdown-editor.md) - Markdown with preview
+
+### Date & Time
+- [Date Picker](docs/date-picker.md) - Date selection
+- [Time Picker](docs/time-picker.md) - Time selection
+- [DateTime Picker](docs/datetime-picker.md) - Combined date/time
+- [Date Range Picker](docs/date-range-picker.md) - Date range selection
+
+### Specialized Inputs
+- [File Upload](docs/file-upload.md) - File uploads with FilePond
+- [Icon Picker](docs/icon-picker.md) - Icon selection
+- [Color Picker](docs/color-picker.md) - Color selection
+- [Tags Input](docs/tags-input.md) - Tag input with suggestions
+- [Pin Input](docs/pin-input.md) - PIN/OTP code input
+- [Rate Input](docs/rate-input.md) - Star rating
+- [Slider](docs/slider.md) - Range slider
+- [Key Value](docs/key-value.md) - Key-value pair editor
+- [Repeater](docs/repeater.md) - Repeatable field groups
+
 ## Configuration
 
 Publish the config file:
