@@ -5,7 +5,8 @@
  */
 
 import flatpickr from 'flatpickr';
-import type { Instance as FlatpickrInstance, Options as FlatpickrOptions } from 'flatpickr/dist/types/instance';
+import type { Instance as FlatpickrInstance } from 'flatpickr/dist/types/instance';
+import type { Options as FlatpickrOptions } from 'flatpickr/dist/types/options';
 
 // Import Flatpickr CSS
 import 'flatpickr/dist/flatpickr.min.css';

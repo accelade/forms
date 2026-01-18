@@ -21,6 +21,7 @@ import { CheckboxListManager } from './components/CheckboxListManager';
 import { FileUploadManager } from './components/FileUploadManager';
 import { MediaBrowserManager } from './components/MediaBrowserManager';
 import { DateTimePickerManager } from './components/DateTimePickerManager';
+import { TextareaManager } from './components/TextareaManager';
 
 /**
  * Initialize all form components
@@ -45,6 +46,7 @@ export function initForms(): void {
     FileUploadManager.initAll();
     MediaBrowserManager.initAll();
     DateTimePickerManager.initAll();
+    TextareaManager.initAll();
 }
 
 /**
@@ -81,5 +83,6 @@ if (typeof window !== 'undefined') {
         FileUpload: FileUploadManager,
         MediaBrowser: MediaBrowserManager,
         DateTimePicker: DateTimePickerManager,
+        Textarea: TextareaManager,
     };
 }

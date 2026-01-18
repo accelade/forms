@@ -7,7 +7,7 @@
 export class RichEditorManager {
     private static instances = new WeakMap<HTMLElement, RichEditorManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private editor: HTMLElement | null;
     private toolbar: HTMLElement | null;
     private hiddenInput: HTMLInputElement | null;
@@ -16,7 +16,7 @@ export class RichEditorManager {
     private savedRange: Range | null = null;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.editor = wrapper.querySelector('.rich-editor-content');
         this.toolbar = wrapper.querySelector('.rich-editor-toolbar');
         this.hiddenInput = wrapper.querySelector('.rich-editor-value');
@@ -354,7 +354,7 @@ export class RichEditorManager {
         }
     }
 
-    private handlePaste(e: ClipboardEvent): void {
+    private handlePaste(_e: ClipboardEvent): void {
         // Allow default paste behavior
         // Could add option to strip formatting here
     }

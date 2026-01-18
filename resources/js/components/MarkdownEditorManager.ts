@@ -27,10 +27,10 @@ type EditorMode = 'edit' | 'preview';
 export class MarkdownEditorManager {
     private static instances = new WeakMap<HTMLElement, MarkdownEditorManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private textarea: HTMLTextAreaElement | null;
     private toolbar: HTMLElement | null;
-    private preview: HTMLElement | null;
+    private _preview: HTMLElement | null;
     private editTab: HTMLElement | null;
     private previewTab: HTMLElement | null;
     private editPanel: HTMLElement | null;
@@ -42,10 +42,10 @@ export class MarkdownEditorManager {
     private md: MarkdownIt;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.textarea = wrapper.querySelector('.markdown-editor-input');
         this.toolbar = wrapper.querySelector('.markdown-editor-toolbar');
-        this.preview = wrapper.querySelector('.markdown-editor-preview');
+        this._preview = wrapper.querySelector('.markdown-editor-preview');
         this.editTab = wrapper.querySelector('[data-tab="edit"]');
         this.previewTab = wrapper.querySelector('[data-tab="preview"]');
         this.editPanel = wrapper.querySelector('.markdown-edit-panel');

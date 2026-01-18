@@ -2,18 +2,19 @@
  * PIN Input Component Manager
  */
 
-import type { PinInputOptions } from '../types';
+// PinInputOptions type available for future use
+import type { PinInputOptions as _PinInputOptions } from '../types';
 
 export class PinInputManager {
     private static instances = new WeakMap<HTMLElement, PinInputManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private inputs: NodeListOf<HTMLInputElement>;
     private hiddenInput: HTMLInputElement | null;
     private length: number;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.inputs = wrapper.querySelectorAll('.pin-input-digit');
         this.hiddenInput = wrapper.querySelector('.pin-input-value');
         this.length = parseInt(wrapper.dataset.length || '4', 10);

@@ -8,7 +8,7 @@
 export class RepeaterManager {
     private static instances = new WeakMap<HTMLElement, RepeaterManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private itemsContainer: HTMLElement | null;
     private addButton: HTMLButtonElement | null;
     private expandAllButton: HTMLButtonElement | null;
@@ -16,12 +16,12 @@ export class RepeaterManager {
     private template: HTMLTemplateElement | null;
     private minItems: number;
     private maxItems: number;
-    private fieldName: string;
+    private _fieldName: string;
     private isSimple: boolean;
     private nextIndex: number = 0;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.itemsContainer = wrapper.querySelector('.repeater-items');
         this.addButton = wrapper.querySelector('.repeater-add');
         this.expandAllButton = wrapper.querySelector('.repeater-expand-all');
@@ -32,7 +32,7 @@ export class RepeaterManager {
 
         this.minItems = parseInt(wrapper.dataset.minItems || '0', 10);
         this.maxItems = parseInt(wrapper.dataset.maxItems || '999', 10);
-        this.fieldName = wrapper.dataset.name || 'items';
+        this._fieldName = wrapper.dataset.name || 'items';
         this.isSimple = wrapper.dataset.simple === 'true';
 
         // Calculate next index from existing items
@@ -244,7 +244,9 @@ export class RepeaterManager {
 
             draggedItem = target;
             draggedItem.classList.add('opacity-50', 'border-dashed');
-            e.dataTransfer?.setEffectAllowed('move');
+            if (e.dataTransfer) {
+                e.dataTransfer.effectAllowed = 'move';
+            }
         });
 
         this.itemsContainer.addEventListener('dragend', () => {

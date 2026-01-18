@@ -55,7 +55,7 @@ export interface SelectOptions {
 export class SelectManager {
     private static instances = new WeakMap<HTMLElement, SelectManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private field: HTMLElement;
     private hiddenSelect: HTMLSelectElement | null;
     private trigger: HTMLButtonElement | null;
@@ -89,7 +89,7 @@ export class SelectManager {
 
     constructor(field: HTMLElement) {
         this.field = field;
-        this.wrapper = field.querySelector('.searchable-select-wrapper') || field;
+        this._wrapper = field.querySelector('.searchable-select-wrapper') || field;
         this.hiddenSelect = field.querySelector('.searchable-select-hidden');
         this.trigger = field.querySelector('.searchable-select-trigger');
         this.dropdown = field.querySelector('.searchable-select-dropdown');
@@ -147,6 +147,9 @@ export class SelectManager {
             hasEditOptionForm: false,
             editOptionModalHeading: 'Edit option',
             editOptionModalSubmitButtonLabel: 'Save',
+            recordUrl: null,
+            createUrl: null,
+            updateUrl: null,
             // Pagination defaults
             infiniteScroll: true,
             showAllOptions: false,

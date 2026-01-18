@@ -5,12 +5,12 @@
 export class SliderManager {
     private static instances = new WeakMap<HTMLElement, SliderManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private slider: HTMLInputElement | null;
     private valueDisplay: HTMLElement | null;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.slider = wrapper.querySelector('.slider-input');
         this.valueDisplay = wrapper.querySelector('.slider-value-current');
 

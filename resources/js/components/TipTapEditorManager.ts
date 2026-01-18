@@ -48,7 +48,7 @@ export interface TipTapConfig {
 export class TipTapEditorManager {
     private static instances = new WeakMap<HTMLElement, TipTapEditorManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private editorElement: HTMLElement | null;
     private toolbar: HTMLElement | null;
     private hiddenInput: HTMLInputElement | null;
@@ -59,7 +59,7 @@ export class TipTapEditorManager {
     private config: TipTapConfig;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.editorElement = wrapper.querySelector('.tiptap-content');
         this.toolbar = wrapper.querySelector('.tiptap-toolbar');
         this.hiddenInput = wrapper.querySelector('.tiptap-value');

@@ -12,7 +12,7 @@ export class CheckboxListManager {
     private selectAllBtn: HTMLButtonElement | null;
     private deselectAllBtn: HTMLButtonElement | null;
     private noResultsEl: HTMLElement | null;
-    private emptyEl: HTMLElement | null;
+    private _emptyEl: HTMLElement | null;
     private searchTimeout: ReturnType<typeof setTimeout> | null = null;
     private searchDebounce: number;
 
@@ -24,7 +24,7 @@ export class CheckboxListManager {
         this.selectAllBtn = wrapper.querySelector('.checkbox-list-select-all');
         this.deselectAllBtn = wrapper.querySelector('.checkbox-list-deselect-all');
         this.noResultsEl = wrapper.querySelector('.checkbox-list-no-results');
-        this.emptyEl = wrapper.querySelector('.checkbox-list-empty');
+        this._emptyEl = wrapper.querySelector('.checkbox-list-empty');
         this.searchDebounce = parseInt(wrapper.dataset.searchDebounce || '300', 10);
 
         this.init();

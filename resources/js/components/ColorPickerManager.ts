@@ -5,12 +5,12 @@
 export class ColorPickerManager {
     private static instances = new WeakMap<HTMLElement, ColorPickerManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private input: HTMLInputElement | null;
     private swatches: NodeListOf<HTMLElement>;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.input = wrapper.querySelector('.color-input');
         this.swatches = wrapper.querySelectorAll('.color-swatch');
 

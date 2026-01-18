@@ -5,14 +5,14 @@
 export class KeyValueManager {
     private static instances = new WeakMap<HTMLElement, KeyValueManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private rowsContainer: HTMLElement | null;
     private addButton: HTMLButtonElement | null;
     private template: HTMLTemplateElement | null;
     private hiddenInput: HTMLInputElement | null;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.rowsContainer = wrapper.querySelector('.key-value-rows');
         this.addButton = wrapper.querySelector('.key-value-add');
         this.hiddenInput = wrapper.querySelector('.key-value-data');
@@ -108,7 +108,7 @@ export class KeyValueManager {
                     if (valueInput) valueInput.value = value;
 
                     this.bindRowEvents(row);
-                    this.rowsContainer.appendChild(clone);
+                    this.rowsContainer?.appendChild(clone);
                 }
             }
         });

@@ -5,7 +5,7 @@
 export class NumberFieldManager {
     private static instances = new WeakMap<HTMLElement, NumberFieldManager>();
 
-    private wrapper: HTMLElement;
+    private _wrapper: HTMLElement;
     private input: HTMLInputElement | null;
     private decrementBtn: HTMLButtonElement | null;
     private incrementBtn: HTMLButtonElement | null;
@@ -14,7 +14,7 @@ export class NumberFieldManager {
     private max: number;
 
     constructor(wrapper: HTMLElement) {
-        this.wrapper = wrapper;
+        this._wrapper = wrapper;
         this.input = wrapper.querySelector('.number-input');
         this.decrementBtn = wrapper.querySelector('.number-decrement');
         this.incrementBtn = wrapper.querySelector('.number-increment');

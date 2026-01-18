@@ -526,7 +526,7 @@ export class FileUploadManager {
 
         return {
             // Open editor - create Cropper.js instance
-            open: (file: File, instructions: any, onconfirm: (file: File) => void, oncancel: () => void) => {
+            open: (file: File, _instructions: any, onconfirm: (file: File) => void, oncancel: () => void) => {
                 // Skip if we're programmatically adding an edited file
                 if (isAddingEditedFile) {
                     return { onclose: () => {} };

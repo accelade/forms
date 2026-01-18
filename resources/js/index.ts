@@ -24,6 +24,7 @@ export { CheckboxListManager } from './components/CheckboxListManager';
 export { FileUploadManager } from './components/FileUploadManager';
 export { MediaBrowserManager } from './components/MediaBrowserManager';
 export { DateTimePickerManager } from './components/DateTimePickerManager';
+export { TextareaManager } from './components/TextareaManager';
 
 // Types
 export type { FormsConfig } from './types';
