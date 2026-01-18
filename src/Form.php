@@ -133,7 +133,7 @@ class Form implements Htmlable
      */
     public function needsMethodSpoofing(): bool
     {
-        return ! in_array($this->method, ['GET', 'POST']);
+        return ! in_array($this->method, ['GET', 'POST'], true);
     }
 
     /**

@@ -47,7 +47,7 @@ class FileUploadToken
     /**
      * Generate the full upload URL with token.
      */
-    public static function url(string $token): string
+    public static function url(#[\SensitiveParameter] string $token): string
     {
         $baseUrl = route('forms.upload');
 
@@ -61,7 +61,7 @@ class FileUploadToken
      *
      * @return array|null The token payload or null if invalid
      */
-    public static function decrypt(string $token): ?array
+    public static function decrypt(#[\SensitiveParameter] string $token): ?array
     {
         try {
             $payload = Crypt::decryptString($token);
@@ -93,7 +93,7 @@ class FileUploadToken
      *
      * @return array|null The token payload or null if invalid/expired
      */
-    public static function validate(string $token): ?array
+    public static function validate(#[\SensitiveParameter] string $token): ?array
     {
         $payload = self::decrypt($token);
 

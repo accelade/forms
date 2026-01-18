@@ -34,6 +34,9 @@ export interface SelectOptions {
     hasEditOptionForm: boolean;
     editOptionModalHeading: string;
     editOptionModalSubmitButtonLabel: string;
+    recordUrl: string | null;
+    createUrl: string | null;
+    updateUrl: string | null;
     // Pagination options
     infiniteScroll: boolean;
     showAllOptions: boolean;
@@ -41,6 +44,12 @@ export interface SelectOptions {
     hasModel: boolean;
     searchUrl: string | null;
     loadMoreMessage: string;
+    // Notification options
+    successNotification: boolean;
+    createSuccessTitle: string;
+    createSuccessBody: string;
+    updateSuccessTitle: string;
+    updateSuccessBody: string;
 }
 
 export class SelectManager {
@@ -145,6 +154,12 @@ export class SelectManager {
             hasModel: false,
             searchUrl: null,
             loadMoreMessage: 'Loading more...',
+            // Notification defaults
+            successNotification: true,
+            createSuccessTitle: 'Created',
+            createSuccessBody: 'Record created successfully.',
+            updateSuccessTitle: 'Updated',
+            updateSuccessBody: 'Record updated successfully.',
         };
     }
 
@@ -241,26 +256,36 @@ export class SelectManager {
         if (this.createModal) {
             const closeBtn = this.createModal.querySelector('.searchable-select-modal-close');
             const cancelBtn = this.createModal.querySelector('.searchable-select-modal-cancel');
-            const submitBtn = this.createModal.querySelector('.searchable-select-modal-submit');
             const backdrop = this.createModal.querySelector('.searchable-select-modal-backdrop');
+            const form = this.createModal.querySelector('.searchable-select-create-form');
 
             closeBtn?.addEventListener('click', () => this.closeCreateModal());
             cancelBtn?.addEventListener('click', () => this.closeCreateModal());
             backdrop?.addEventListener('click', () => this.closeCreateModal());
-            submitBtn?.addEventListener('click', () => this.submitCreateForm());
+
+            // Handle form submit
+            form?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.submitCreateForm();
+            });
         }
 
         // Edit modal
         if (this.editModal) {
             const closeBtn = this.editModal.querySelector('.searchable-select-modal-close');
             const cancelBtn = this.editModal.querySelector('.searchable-select-modal-cancel');
-            const submitBtn = this.editModal.querySelector('.searchable-select-modal-submit');
             const backdrop = this.editModal.querySelector('.searchable-select-modal-backdrop');
+            const form = this.editModal.querySelector('.searchable-select-edit-form');
 
             closeBtn?.addEventListener('click', () => this.closeEditModal());
             cancelBtn?.addEventListener('click', () => this.closeEditModal());
             backdrop?.addEventListener('click', () => this.closeEditModal());
-            submitBtn?.addEventListener('click', () => this.submitEditForm());
+
+            // Handle form submit
+            form?.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.submitEditForm();
+            });
         }
     }
 
@@ -990,21 +1015,20 @@ export class SelectManager {
         this.createModal.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
 
+        // Clear errors
+        this.clearModalErrors(this.createModal);
+
         // Clear form
-        const inputs = this.createModal.querySelectorAll('input, textarea, select');
-        inputs.forEach(input => {
-            if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
-                input.value = '';
-            }
-        });
+        const form = this.createModal.querySelector('.searchable-select-create-form') as HTMLFormElement;
+        form?.reset();
     }
 
-    private submitCreateForm(): void {
+    private async submitCreateForm(): Promise<void> {
         if (!this.createModal) return;
 
         // Collect form data
         const formContent = this.createModal.querySelector('.searchable-select-create-form-content');
-        const inputs = formContent?.querySelectorAll('input, textarea, select');
+        const inputs = formContent?.querySelectorAll('input, textarea, select') as NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
         const data: Record<string, string> = {};
 
         inputs?.forEach(input => {
@@ -1014,11 +1038,78 @@ export class SelectManager {
             }
         });
 
-        // Dispatch create event
-        this.field.dispatchEvent(new CustomEvent('searchable-select-create', {
-            bubbles: true,
-            detail: { data, callback: this.handleCreateCallback.bind(this) }
-        }));
+        // If we have a createUrl, call the API
+        if (this.options.createUrl) {
+            try {
+                // Disable inputs during submission
+                const submitBtn = this.createModal.querySelector('.searchable-select-modal-submit') as HTMLButtonElement;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creating...';
+                }
+                inputs?.forEach(input => input.disabled = true);
+
+                // Get CSRF token from meta tag
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+                const response = await fetch(this.options.createUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.clearModalErrors(this.createModal);
+                        this.handleCreateCallback(result.data);
+                    }
+                } else {
+                    const error = await response.json();
+                    console.error('Failed to create record:', error);
+                    // Show error in modal
+                    this.showModalError(this.createModal, error);
+                }
+
+                // Re-enable inputs
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = this.options.createOptionModalSubmitButtonLabel;
+                }
+                inputs?.forEach(input => input.disabled = false);
+            } catch (error) {
+                console.error('Error creating record:', error);
+                // Show generic error
+                this.showModalError(this.createModal, { message: 'An unexpected error occurred. Please try again.' });
+                // Re-enable inputs
+                inputs?.forEach(input => input.disabled = false);
+            }
+        } else {
+            // Fallback to event dispatch for custom handling
+            this.field.dispatchEvent(new CustomEvent('searchable-select-create', {
+                bubbles: true,
+                detail: { data, callback: this.handleCreateCallback.bind(this) }
+            }));
+        }
+    }
+
+    /**
+     * Show a success notification using Accelade's notify system
+     */
+    private showSuccessNotification(title: string, body: string = ''): void {
+        if (!this.options.successNotification) return;
+
+        // Check if Accelade is available (from the accelade package)
+        const Accelade = (window as unknown as { Accelade?: { notify?: { success: (title: string, body?: string) => void } } }).Accelade;
+        if (Accelade?.notify?.success) {
+            Accelade.notify.success(title, body);
+        }
     }
 
     private handleCreateCallback(option: { value: string; label: string }): void {
@@ -1064,15 +1155,72 @@ export class SelectManager {
 
         // Close modal
         this.closeCreateModal();
+
+        // Show success notification
+        this.showSuccessNotification(
+            this.options.createSuccessTitle,
+            this.options.createSuccessBody
+        );
     }
 
-    public openEditModal(): void {
+    public async openEditModal(): Promise<void> {
         if (!this.editModal || this.selectedValues.length === 0) return;
+
+        const selectedValue = this.selectedValues[0];
+
+        // Show modal immediately with loading state
         this.editModal.classList.remove('hidden');
         document.body.classList.add('overflow-hidden');
 
-        // Populate form with current option data
-        // This would need to be handled by the backend through data attributes or AJAX
+        // If we have a recordUrl, fetch the data to pre-fill the form
+        if (this.options.recordUrl) {
+            try {
+                // Show loading state on inputs
+                const formContent = this.editModal.querySelector('.searchable-select-edit-form-content');
+                const inputs = formContent?.querySelectorAll('input, textarea, select') as NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+                inputs?.forEach(input => {
+                    input.disabled = true;
+                });
+
+                // Fetch record data
+                const url = new URL(this.options.recordUrl, window.location.origin);
+                url.searchParams.set('id', selectedValue);
+
+                const response = await fetch(url.toString(), {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const data = result.data || {};
+
+                    // Populate form fields with record data
+                    inputs?.forEach(input => {
+                        const name = input.getAttribute('name');
+                        if (name && data[name] !== undefined) {
+                            input.value = data[name] ?? '';
+                        }
+                        input.disabled = false;
+                    });
+                } else {
+                    // Re-enable inputs even on error
+                    inputs?.forEach(input => {
+                        input.disabled = false;
+                    });
+                    console.error('Failed to fetch record data:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching record data:', error);
+                // Re-enable inputs on error
+                const inputs = this.editModal.querySelectorAll('input, textarea, select') as NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+                inputs?.forEach(input => {
+                    input.disabled = false;
+                });
+            }
+        }
 
         // Focus first input
         const firstInput = this.editModal.querySelector('input, textarea, select') as HTMLElement;
@@ -1083,14 +1231,23 @@ export class SelectManager {
         if (!this.editModal) return;
         this.editModal.classList.add('hidden');
         document.body.classList.remove('overflow-hidden');
+
+        // Clear errors
+        this.clearModalErrors(this.editModal);
+
+        // Reset form
+        const form = this.editModal.querySelector('.searchable-select-edit-form') as HTMLFormElement;
+        form?.reset();
     }
 
-    private submitEditForm(): void {
+    private async submitEditForm(): Promise<void> {
         if (!this.editModal || this.selectedValues.length === 0) return;
+
+        const selectedValue = this.selectedValues[0];
 
         // Collect form data
         const formContent = this.editModal.querySelector('.searchable-select-edit-form-content');
-        const inputs = formContent?.querySelectorAll('input, textarea, select');
+        const inputs = formContent?.querySelectorAll('input, textarea, select') as NodeListOf<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
         const data: Record<string, string> = {};
 
         inputs?.forEach(input => {
@@ -1100,15 +1257,69 @@ export class SelectManager {
             }
         });
 
-        // Dispatch edit event
-        this.field.dispatchEvent(new CustomEvent('searchable-select-edit', {
-            bubbles: true,
-            detail: {
-                value: this.selectedValues[0],
-                data,
-                callback: this.handleEditCallback.bind(this)
+        // If we have an updateUrl, call the API
+        if (this.options.updateUrl) {
+            try {
+                // Disable inputs during submission
+                const submitBtn = this.editModal.querySelector('.searchable-select-modal-submit') as HTMLButtonElement;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Updating...';
+                }
+                inputs?.forEach(input => input.disabled = true);
+
+                // Get CSRF token from meta tag
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+                const response = await fetch(this.options.updateUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ ...data, id: selectedValue }),
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.clearModalErrors(this.editModal);
+                        this.handleEditCallback(result.data);
+                    }
+                } else {
+                    const error = await response.json();
+                    console.error('Failed to update record:', error);
+                    // Show error in modal
+                    this.showModalError(this.editModal, error);
+                }
+
+                // Re-enable inputs
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = this.options.editOptionModalSubmitButtonLabel;
+                }
+                inputs?.forEach(input => input.disabled = false);
+            } catch (error) {
+                console.error('Error updating record:', error);
+                // Show generic error
+                this.showModalError(this.editModal, { message: 'An unexpected error occurred. Please try again.' });
+                // Re-enable inputs
+                inputs?.forEach(input => input.disabled = false);
             }
-        }));
+        } else {
+            // Fallback to event dispatch for custom handling
+            this.field.dispatchEvent(new CustomEvent('searchable-select-edit', {
+                bubbles: true,
+                detail: {
+                    value: selectedValue,
+                    data,
+                    callback: this.handleEditCallback.bind(this)
+                }
+            }));
+        }
     }
 
     private handleEditCallback(option: { value: string; label: string }): void {
@@ -1132,11 +1343,88 @@ export class SelectManager {
 
         // Close modal
         this.closeEditModal();
+
+        // Show success notification
+        this.showSuccessNotification(
+            this.options.updateSuccessTitle,
+            this.options.updateSuccessBody
+        );
     }
 
     private closeAllModals(): void {
         this.closeCreateModal();
         this.closeEditModal();
+    }
+
+    /**
+     * Show error message in modal with Laravel-style design
+     */
+    private showModalError(modal: HTMLElement | null, error: { message?: string; errors?: Record<string, string[]> }): void {
+        if (!modal) return;
+
+        // Clear any existing errors first
+        this.clearModalErrors(modal);
+
+        const formContent = modal.querySelector('.searchable-select-create-form-content, .searchable-select-edit-form-content');
+        if (!formContent) return;
+
+        // Create error container
+        const errorContainer = document.createElement('div');
+        errorContainer.className = 'searchable-select-modal-errors mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4';
+
+        // Check if we have field-specific errors
+        if (error.errors && Object.keys(error.errors).length > 0) {
+            // Show validation errors per field
+            const errorList = document.createElement('ul');
+            errorList.className = 'list-disc list-inside space-y-1 text-sm text-red-600 dark:text-red-400';
+
+            for (const [field, messages] of Object.entries(error.errors)) {
+                messages.forEach(msg => {
+                    const li = document.createElement('li');
+                    li.textContent = msg;
+                    errorList.appendChild(li);
+                });
+
+                // Also highlight the specific field
+                const input = formContent.querySelector(`[name="${field}"]`) as HTMLElement;
+                if (input) {
+                    input.classList.add('border-red-500', 'dark:border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+                }
+            }
+
+            errorContainer.appendChild(errorList);
+        } else if (error.message) {
+            // Show general error message
+            const errorText = document.createElement('p');
+            errorText.className = 'text-sm text-red-600 dark:text-red-400';
+            errorText.textContent = error.message;
+            errorContainer.appendChild(errorText);
+        }
+
+        // Insert error at the top of the form content
+        formContent.insertBefore(errorContainer, formContent.firstChild);
+
+        // Scroll to show error
+        errorContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    /**
+     * Clear error messages from modal
+     */
+    private clearModalErrors(modal: HTMLElement | null): void {
+        if (!modal) return;
+
+        // Remove error container
+        const errorContainer = modal.querySelector('.searchable-select-modal-errors');
+        if (errorContainer) {
+            errorContainer.remove();
+        }
+
+        // Remove error styling from inputs
+        const inputs = modal.querySelectorAll('.border-red-500');
+        inputs.forEach(input => {
+            input.classList.remove('border-red-500', 'dark:border-red-500', 'focus:border-red-500', 'focus:ring-red-500');
+        });
     }
 
     // Public API

@@ -50,17 +50,7 @@
                        dark:peer-focus-visible:ring-offset-gray-900"
             >
                 {{-- Checkmark icon - hidden by default, shown when checked via CSS --}}
-                <svg
-                    class="checkbox-icon h-3 w-3 text-white"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <polyline points="2 6 5 9 10 3"></polyline>
-                </svg>
+                <x-accelade::icon name="heroicon-m-check" size="xs" class="checkbox-icon text-white" :showFallback="false" />
             </label>
         </div>
 

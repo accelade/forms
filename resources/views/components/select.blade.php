@@ -9,6 +9,10 @@
     $hasDescriptions = $field->hasOptionDescriptions();
     $hasCreateOptionForm = $field->hasCreateOptionForm();
     $hasEditOptionForm = $field->hasEditOptionForm();
+    $hasCreateAction = $field->hasCreateAction();
+    $hasEditAction = $field->hasEditAction();
+    $createAction = $field->getCreateAction();
+    $editAction = $field->getEditAction();
 
     // Container classes
     $containerClasses = config('forms.styles.select_container', 'relative rounded-lg border border-gray-300 bg-white shadow-sm transition-all duration-150 focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-800');
@@ -56,9 +60,7 @@
 
             {{-- Dropdown arrow icon --}}
             <div class="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3">
-                <svg class="h-4 w-4 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                </svg>
+                <x-accelade::icon name="heroicon-m-chevron-down" size="sm" class="text-gray-400 dark:text-gray-500" :showFallback="false" />
             </div>
 
             <select
@@ -199,33 +201,35 @@
 
                     @if($field->hasAllowClear())
                         <span class="searchable-select-clear hidden text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 cursor-pointer" title="Clear">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
+                            <x-accelade::icon name="heroicon-o-x-mark" size="sm" :showFallback="false" />
                         </span>
                     @endif
 
-                    {{-- Edit option button --}}
-                    @if($hasEditOptionForm)
+                    {{-- Edit option button (using Actions component if available) --}}
+                    @if($hasEditAction)
+                        <span class="searchable-select-edit-btn hidden" data-select-edit-action>
+                            <x-actions::action :action="$editAction" :record="$field->getDefault()" />
+                        </span>
+                    @elseif($hasEditOptionForm)
                         <span class="searchable-select-edit-btn hidden text-gray-400 hover:text-primary-600 dark:text-gray-500 dark:hover:text-primary-400 cursor-pointer" title="{{ __('Edit') }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
+                            <x-accelade::icon name="heroicon-o-pencil-square" size="sm" :showFallback="false" />
                         </span>
                     @endif
 
-                    {{-- Create option button --}}
-                    @if($hasCreateOptionForm)
+                    {{-- Create option button (using Actions component if available) --}}
+                    @if($hasCreateAction)
+                        <span class="searchable-select-create-btn" data-select-create-action>
+                            <x-actions::action :action="$createAction" />
+                        </span>
+                    @elseif($hasCreateOptionForm)
                         <span class="searchable-select-create-btn text-gray-400 hover:text-primary-600 dark:text-gray-500 dark:hover:text-primary-400 cursor-pointer" title="{{ __('Create new') }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
+                            <x-accelade::icon name="heroicon-o-plus" size="sm" :showFallback="false" />
                         </span>
                     @endif
 
-                    <svg class="searchable-select-arrow h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                    </svg>
+                    <span class="searchable-select-arrow text-gray-400 dark:text-gray-500 transition-transform">
+                        <x-accelade::icon name="heroicon-m-chevron-down" size="sm" :showFallback="false" />
+                    </span>
                 </span>
             </button>
 
@@ -253,10 +257,7 @@
                 {{-- Loading message --}}
                 <div class="searchable-select-loading hidden px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
                     <span class="inline-flex items-center gap-2">
-                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                        <x-accelade::icon name="heroicon-o-arrow-path" size="sm" class="animate-spin" :showFallback="false" />
                         {{ $field->getLoadingMessage() }}
                     </span>
                 </div>
@@ -294,9 +295,7 @@
                                                     @endif
                                                 </div>
                                                 <span class="searchable-select-option-check hidden ms-2 text-primary-600 shrink-0">
-                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                    </svg>
+                                                    <x-accelade::icon name="heroicon-s-check" size="sm" :showFallback="false" />
                                                 </span>
                                             </div>
                                         </li>
@@ -341,10 +340,7 @@
                 {{-- Load more indicator (infinite scroll) --}}
                 <div class="searchable-select-load-more hidden px-3 py-2 text-sm text-gray-500 dark:text-gray-400 text-center border-t border-gray-200 dark:border-gray-700">
                     <span class="inline-flex items-center gap-2">
-                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                        <x-accelade::icon name="heroicon-o-arrow-path" size="sm" class="animate-spin" :showFallback="false" />
                         {{ __('Loading more...') }}
                     </span>
                 </div>
@@ -397,31 +393,32 @@
                                         {{ $field->getCreateOptionModalHeading() }}
                                     </h3>
                                     <button type="button" class="searchable-select-modal-close text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
+                                        <x-accelade::icon name="heroicon-o-x-mark" size="md" :showFallback="false" />
                                     </button>
                                 </div>
                             </div>
 
-                            {{-- Form Content --}}
-                            <div class="px-4 py-4">
-                                <div class="searchable-select-create-form-content space-y-4">
-                                    @foreach($field->getCreateOptionForm() ?? [] as $formField)
-                                        {!! $formField !!}
-                                    @endforeach
+                            {{-- Form with Content and Footer --}}
+                            <form class="searchable-select-create-form" novalidate>
+                                {{-- Form Content --}}
+                                <div class="px-4 py-4">
+                                    <div class="searchable-select-create-form-content space-y-4">
+                                        @foreach($field->getCreateOptionForm() ?? [] as $formField)
+                                            {!! $formField !!}
+                                        @endforeach
+                                    </div>
                                 </div>
-                            </div>
 
-                            {{-- Footer --}}
-                            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                                <button type="button" class="searchable-select-modal-cancel px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    {{ __('Cancel') }}
-                                </button>
-                                <button type="button" class="searchable-select-modal-submit px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    {{ $field->getCreateOptionModalSubmitButtonLabel() }}
-                                </button>
-                            </div>
+                                {{-- Footer --}}
+                                <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+                                    <button type="button" class="searchable-select-modal-cancel px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        {{ __('Cancel') }}
+                                    </button>
+                                    <button type="submit" class="searchable-select-modal-submit px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        {{ $field->getCreateOptionModalSubmitButtonLabel() }}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -445,31 +442,32 @@
                                         {{ $field->getEditOptionModalHeading() }}
                                     </h3>
                                     <button type="button" class="searchable-select-modal-close text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
+                                        <x-accelade::icon name="heroicon-o-x-mark" size="md" :showFallback="false" />
                                     </button>
                                 </div>
                             </div>
 
-                            {{-- Form Content --}}
-                            <div class="px-4 py-4">
-                                <div class="searchable-select-edit-form-content space-y-4">
-                                    @foreach($field->getEditOptionForm() ?? [] as $formField)
-                                        {!! $formField !!}
-                                    @endforeach
+                            {{-- Form with Content and Footer --}}
+                            <form class="searchable-select-edit-form" novalidate>
+                                {{-- Form Content --}}
+                                <div class="px-4 py-4">
+                                    <div class="searchable-select-edit-form-content space-y-4">
+                                        @foreach($field->getEditOptionForm() ?? [] as $formField)
+                                            {!! $formField !!}
+                                        @endforeach
+                                    </div>
                                 </div>
-                            </div>
 
-                            {{-- Footer --}}
-                            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                                <button type="button" class="searchable-select-modal-cancel px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    {{ __('Cancel') }}
-                                </button>
-                                <button type="button" class="searchable-select-modal-submit px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                    {{ $field->getEditOptionModalSubmitButtonLabel() }}
-                                </button>
-                            </div>
+                                {{-- Footer --}}
+                                <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+                                    <button type="button" class="searchable-select-modal-cancel px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        {{ __('Cancel') }}
+                                    </button>
+                                    <button type="submit" class="searchable-select-modal-submit px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                        {{ $field->getEditOptionModalSubmitButtonLabel() }}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

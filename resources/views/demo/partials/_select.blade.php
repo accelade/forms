@@ -7,9 +7,12 @@
     use App\Models\User;
 
     // Select with Create/Edit Modal Forms (using User model)
+    // Uses model() so the edit form can fetch record data to pre-fill
     $selectWithCreateEdit = Select::make('user_id_modal')
         ->label('User (with Create/Edit)')
-        ->options(User::query()->orderBy('name')->limit(20)->pluck('name', 'id')->toArray())
+        ->model(User::class, 'name', 'id')
+        ->searchable()
+        ->limit(20)
         ->allowClear()
         ->emptyOptionLabel('Select user...')
         ->createOptionForm([
@@ -20,6 +23,11 @@
                 ->label('Email Address')
                 ->required()
                 ->helperText('Must be a valid email'),
+            TextInput::make('password')
+                ->label('Password')
+                ->required()
+                ->type('password')
+                ->helperText('Required for new users'),
         ])
         ->createOptionModalHeading('Create New User')
         ->createOptionModalSubmitButtonLabel('Create User')
@@ -33,11 +41,16 @@
         ])
         ->editOptionModalHeading('Edit User')
         ->editOptionModalSubmitButtonLabel('Update User')
+        ->createSuccessNotificationTitle('User Created')
+        ->createSuccessNotificationBody('The new user has been created and selected.')
+        ->updateSuccessNotificationTitle('User Updated')
+        ->updateSuccessNotificationBody('The user information has been saved.')
         ->helperText('Click + to create, pencil to edit selected');
 
-    // Searchable select (default)
+    // Searchable select
     $countrySelect = Select::make('country')
         ->label('Country')
+        ->searchable()
         ->options([
             'us' => 'United States',
             'uk' => 'United Kingdom',
@@ -62,6 +75,7 @@
 
     $userSelect = Select::make('user_id')
         ->label('Select User (from Model)')
+        ->searchable()
         ->options($usersFromModel)
         ->allowClear()
         ->searchPlaceholder('Search users...')
@@ -71,6 +85,7 @@
     // Using relationship method (Filament style)
     $userRelationSelect = Select::make('assigned_to')
         ->label('Assign To (Relationship)')
+        ->searchable()
         ->relationship('user', 'name')
         ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->email})")
         ->searchPlaceholder('Search by name or email...')
@@ -80,6 +95,7 @@
     // With getOptionsUsing callback
     $dynamicUserSelect = Select::make('reviewer_id')
         ->label('Reviewer (Dynamic Options)')
+        ->searchable()
         ->getOptionsUsing(fn () => User::query()
             ->orderBy('name')
             ->limit(50)
@@ -93,6 +109,7 @@
     // With option descriptions from model
     $userWithDescriptionSelect = Select::make('manager_id')
         ->label('Manager (with Email)')
+        ->searchable()
         ->options($usersFromModel)
         ->getOptionDescriptionUsing(fn ($value) => User::find($value)?->email)
         ->allowClear()
@@ -102,6 +119,7 @@
     // Multiple users selection
     $multipleUsersSelect = Select::make('team_members')
         ->label('Team Members')
+        ->searchable()
         ->options($usersFromModel)
         ->multiple()
         ->closeOnSelect(false)
@@ -112,6 +130,7 @@
     // Paginated select with infinite scroll (default limit: 50)
     $paginatedUserSelect = Select::make('paginated_user_id')
         ->label('User (Paginated - 50 items)')
+        ->searchable()
         ->model(User::class, 'name', 'id')  // Model with label/value attributes
         ->limit(50)  // Show 50 items initially (default)
         ->searchPlaceholder('Search users...')
@@ -121,6 +140,7 @@
     // Paginated with custom limit
     $paginatedLimitedSelect = Select::make('limited_user_id')
         ->label('User (Limited to 10)')
+        ->searchable()
         ->model(User::class, 'name', 'id')
         ->limit(10)  // Only show 10 items per page
         ->searchPlaceholder('Search...')
@@ -134,6 +154,7 @@
 
     $selectWithDefaultValue = Select::make('preselected_user_id')
         ->label('Pre-selected User (Default Value)')
+        ->searchable()
         ->model(User::class, 'name', 'id')
         ->limit(10)  // Only load first 10, but default is outside this range
         ->default($defaultUserId)  // This user won't be in first 10, but will be auto-fetched
@@ -145,6 +166,7 @@
     // Note: Don't use all() with 10,000+ records - it will be slow!
     $allUsersSelect = Select::make('all_users_id')
         ->label('All Options (No Pagination)')
+        ->searchable()
         ->options([
             '1' => 'Option 1',
             '2' => 'Option 2',
@@ -165,6 +187,7 @@
     // Searchable with custom placeholder
     $languageSelect = Select::make('language')
         ->label('Programming Language')
+        ->searchable()
         ->options([
             'php' => 'PHP',
             'javascript' => 'JavaScript',
@@ -185,6 +208,7 @@
     // Multiple select with tags
     $skillsSelect = Select::make('skills')
         ->label('Skills')
+        ->searchable()
         ->options([
             'php' => 'PHP',
             'javascript' => 'JavaScript',
@@ -202,6 +226,7 @@
     // Multiple with max selections
     $topSkillsSelect = Select::make('top_skills')
         ->label('Top 3 Skills')
+        ->searchable()
         ->options([
             'leadership' => 'Leadership',
             'communication' => 'Communication',
@@ -217,6 +242,7 @@
     // Taggable select (create new options)
     $tagsSelect = Select::make('tags')
         ->label('Tags')
+        ->searchable()
         ->options([
             'featured' => 'Featured',
             'new' => 'New',
@@ -243,6 +269,7 @@
     // Grouped options
     $groupedSelect = Select::make('vehicle')
         ->label('Vehicle')
+        ->searchable()
         ->groupedOptions([
             'Cars' => [
                 'sedan' => 'Sedan',
@@ -266,6 +293,7 @@
     // With option descriptions
     $planSelect = Select::make('plan')
         ->label('Subscription Plan')
+        ->searchable()
         ->options([
             'free' => 'Free',
             'pro' => 'Pro',
@@ -283,6 +311,7 @@
     // Disabled options
     $prioritySelect = Select::make('priority')
         ->label('Priority Level')
+        ->searchable()
         ->options([
             'low' => 'Low',
             'medium' => 'Medium',
@@ -296,12 +325,14 @@
     // Boolean select
     $activeSelect = Select::make('is_active')
         ->label('Active Status')
+        ->searchable()
         ->boolean('Active', 'Inactive', 'Select status...')
         ->helperText('Simple Yes/No style select');
 
     // With prefix
     $searchSelect = Select::make('search_category')
         ->label('Search in Category')
+        ->searchable()
         ->prefixIcon('magnifying-glass')
         ->options([
             'all' => 'All Categories',
@@ -314,6 +345,7 @@
     // With prefix text
     $currencySelect = Select::make('currency')
         ->label('Currency')
+        ->searchable()
         ->prefix('$')
         ->options([
             'usd' => 'US Dollar',
@@ -369,18 +401,21 @@
     // Dependent selects
     $dependentCountrySelect = Select::make('dependent_country')
         ->label('Country')
+        ->searchable()
         ->options($countries)
         ->emptyOptionLabel('Select country first...')
         ->helperText('Step 1: Select a country');
 
     $dependentStateSelect = Select::make('dependent_state')
         ->label('State/Province')
+        ->searchable()
         ->options([])  // Options loaded dynamically via JavaScript
         ->emptyOptionLabel('Select state...')
         ->helperText('Step 2: Options depend on country');
 
     $dependentCitySelect = Select::make('dependent_city')
         ->label('City')
+        ->searchable()
         ->options([])  // Options loaded dynamically via JavaScript
         ->emptyOptionLabel('Select city...')
         ->helperText('Step 3: Options depend on state');

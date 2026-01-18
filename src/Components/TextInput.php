@@ -351,4 +351,17 @@ class TextInput extends Field
     {
         return 'forms::components.text-input';
     }
+
+    /**
+     * Serialize to array for JSON output with record context.
+     */
+    public function toArrayWithRecord(mixed $record = null): array
+    {
+        return array_merge(parent::toArrayWithRecord($record), [
+            'inputType' => $this->getType(),
+            'inputMode' => $this->getInputMode(),
+            'autocomplete' => $this->getAutocomplete(),
+            'mask' => $this->getMask(),
+        ]);
+    }
 }

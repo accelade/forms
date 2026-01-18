@@ -266,6 +266,33 @@ class CheckboxList extends Field
     }
 
     /**
+     * Set the relation name (Splade compatibility).
+     * If no name is provided, uses the field name as the relation name.
+     */
+    public function relation(?string $name = null): static
+    {
+        $this->relationship = $name ?? $this->name;
+
+        return $this;
+    }
+
+    /**
+     * Get the relation name (Splade compatibility).
+     */
+    public function getRelation(): ?string
+    {
+        return $this->relationship;
+    }
+
+    /**
+     * Check if a relation is configured.
+     */
+    public function hasRelation(): bool
+    {
+        return $this->relationship !== null;
+    }
+
+    /**
      * Get the relationship name.
      */
     public function getRelationship(): ?string

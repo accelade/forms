@@ -65,25 +65,36 @@ class ExistingFile implements Arrayable, Jsonable, JsonSerializable
         }
 
         $instance = new static($this->disk, $path);
-
-        if (Storage::disk($this->disk)->exists($path)) {
-            $instance->name = basename($path);
-            $instance->size = Storage::disk($this->disk)->size($path);
-            $instance->mimeType = Storage::disk($this->disk)->mimeType($path);
-
-            // Generate preview URL
-            try {
-                $instance->previewUrl = Storage::disk($this->disk)->temporaryUrl(
-                    $path,
-                    now()->addHour()
-                );
-            } catch (\RuntimeException) {
-                // Disk doesn't support temporary URLs
-                $instance->previewUrl = Storage::disk($this->disk)->url($path);
-            }
-        }
+        $this->populateFileMetadata($instance, $path);
 
         return $instance;
+    }
+
+    /**
+     * Populate file metadata for an existing file instance.
+     */
+    protected function populateFileMetadata(self $instance, string $path): void
+    {
+        if (! Storage::disk($this->disk)->exists($path)) {
+            return;
+        }
+
+        $instance->name = basename($path);
+        $instance->size = Storage::disk($this->disk)->size($path);
+        $instance->mimeType = Storage::disk($this->disk)->mimeType($path);
+        $instance->previewUrl = $this->generatePreviewUrl($path);
+    }
+
+    /**
+     * Generate a preview URL for a file.
+     */
+    protected function generatePreviewUrl(string $path): string
+    {
+        try {
+            return Storage::disk($this->disk)->temporaryUrl($path, now()->addHour());
+        } catch (\RuntimeException) {
+            return Storage::disk($this->disk)->url($path);
+        }
     }
 
     /**
@@ -351,7 +362,8 @@ class ExistingFile implements Arrayable, Jsonable, JsonSerializable
                 return static::fromDisk($data['disk'])->get($data['path']);
             }
         } catch (\Exception) {
-            // Invalid encrypted data
+            // @mago-expect no-empty-catch-clause: Invalid encrypted data should return null silently
+            return null;
         }
 
         return null;

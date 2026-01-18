@@ -135,6 +135,14 @@ class FileUpload extends Field
     // Native mode (simple HTML file input)
     protected bool $isNative = false;
 
+    // Splade compatibility - FilePond
+    protected bool|array $filepond = false;
+
+    protected static ?array $defaultFilepondOptions = null;
+
+    // Splade compatibility - Preview mode
+    protected bool $hasPreviewEnabled = false;
+
     // Spatie Media Library integration
     protected bool $useMediaLibrary = false;
 
@@ -411,7 +419,7 @@ class FileUpload extends Field
         $this->isImage = $condition;
 
         if ($condition) {
-            $this->acceptedFileTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'];
+            $this->acceptedFileTypes = 'image/*';
         }
 
         return $this;
@@ -452,20 +460,27 @@ class FileUpload extends Field
      */
     public function imageCrop(bool|float|string|null $aspectRatio = true): static
     {
-        if ($aspectRatio === false) {
-            $this->imageCrop = false;
-            $this->imageCropAspectRatio = null;
-        } elseif (is_float($aspectRatio) || is_int($aspectRatio)) {
-            $this->imageCrop = true;
-            $this->imageCropAspectRatio = (float) $aspectRatio;
-        } elseif (is_string($aspectRatio)) {
-            $this->imageCrop = true;
-            $this->imageCropAspectRatio = $aspectRatio;
-        } else {
-            $this->imageCrop = true;
-        }
+        [$enabled, $ratio] = $this->parseImageCropAspectRatio($aspectRatio);
+
+        $this->imageCrop = $enabled;
+        $this->imageCropAspectRatio = $ratio;
 
         return $this;
+    }
+
+    /**
+     * Parse the aspect ratio argument for image cropping.
+     *
+     * @return array{bool, float|string|null}
+     */
+    protected function parseImageCropAspectRatio(bool|float|string|null $aspectRatio): array
+    {
+        return match (true) {
+            $aspectRatio === false => [false, null],
+            is_float($aspectRatio), is_int($aspectRatio) => [true, (float) $aspectRatio],
+            is_string($aspectRatio) => [true, $aspectRatio],
+            default => [true, null],
+        };
     }
 
     /**
@@ -1229,6 +1244,70 @@ class FileUpload extends Field
     public function isNative(): bool
     {
         return $this->isNative;
+    }
+
+    // =========================================================================
+    // Splade Compatibility - FilePond
+    // =========================================================================
+
+    /**
+     * Enable FilePond with optional configuration options.
+     */
+    public function filepond(bool|array $options = true): static
+    {
+        $this->filepond = $options;
+
+        return $this;
+    }
+
+    /**
+     * Check if FilePond is enabled.
+     */
+    public function hasFilepond(): bool
+    {
+        return $this->filepond !== false;
+    }
+
+    /**
+     * Get FilePond options.
+     */
+    public function getFilepondOptions(): array
+    {
+        if ($this->filepond === true) {
+            return static::$defaultFilepondOptions ?? [];
+        }
+
+        return is_array($this->filepond) ? $this->filepond : [];
+    }
+
+    /**
+     * Set default FilePond options globally.
+     */
+    public static function defaultFilepond(array $options = []): void
+    {
+        static::$defaultFilepondOptions = $options;
+    }
+
+    // =========================================================================
+    // Splade Compatibility - Preview Mode
+    // =========================================================================
+
+    /**
+     * Enable preview mode (Splade compatibility).
+     */
+    public function preview(bool $condition = true): static
+    {
+        $this->hasPreviewEnabled = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Check if preview mode is enabled (Splade compatibility).
+     */
+    public function hasPreview(): bool
+    {
+        return $this->hasPreviewEnabled;
     }
 
     // =========================================================================

@@ -1676,8 +1676,8 @@ HTML;
      */
     protected function registerFormInputDocs(DocsRegistry $docs): void
     {
-        $docs->section('forms-overview')
-            ->label('Forms Overview')
+        $docs->section('forms')
+            ->label('Forms')
             ->markdown('getting-started.md')
             ->demo()
             ->icon('📋')

@@ -244,7 +244,7 @@ class MediaBrowserController extends Controller
             'size_formatted' => $this->formatFileSize($media->size),
             'is_image' => $isImage,
             'url' => $media->getUrl(),
-            'thumbnail_url' => $isImage ? ($media->hasGeneratedConversion('thumb') ? $media->getUrl('thumb') : $media->getUrl()) : null,
+            'thumbnail_url' => $this->getThumbnailUrl($media, $isImage),
             'path' => $media->getPath(),
             'collection' => $media->collection_name,
             'model_type' => class_basename($media->model_type),
@@ -283,6 +283,22 @@ class MediaBrowserController extends Controller
             'created_at' => date('c', Storage::disk($disk)->lastModified($path)),
             'updated_at' => date('c', Storage::disk($disk)->lastModified($path)),
         ];
+    }
+
+    /**
+     * Get thumbnail URL for a media item.
+     */
+    protected function getThumbnailUrl(mixed $media, bool $isImage): ?string
+    {
+        if (! $isImage) {
+            return null;
+        }
+
+        if ($media->hasGeneratedConversion('thumb')) {
+            return $media->getUrl('thumb');
+        }
+
+        return $media->getUrl();
     }
 
     /**
