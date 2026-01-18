@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Accelade\Forms;
 
+use Accelade\Schemas\Contracts\HasRecord;
+use Accelade\Schemas\Contracts\Renderable;
 use Closure;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
 
 /**
  * Base field class for form components.
  */
-abstract class Field implements Htmlable
+abstract class Field implements HasRecord, Renderable
 {
     use Conditionable;
 
@@ -27,6 +28,8 @@ abstract class Field implements Htmlable
     protected string|Closure|null $hint = null;
 
     protected mixed $default = null;
+
+    protected mixed $record = null;
 
     protected bool $isRequired = false;
 
@@ -119,6 +122,24 @@ abstract class Field implements Htmlable
     public function getId(): string
     {
         return $this->id ?? Str::slug($this->name);
+    }
+
+    /**
+     * Set the record for this field.
+     */
+    public function record(mixed $record): static
+    {
+        $this->record = $record;
+
+        return $this;
+    }
+
+    /**
+     * Get the record for this field.
+     */
+    public function getRecord(): mixed
+    {
+        return $this->record;
     }
 
     /**
