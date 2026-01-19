@@ -38,7 +38,7 @@
         "filepond-plugin-image-transform": "^3.8.7",
         "filepond-plugin-image-exif-orientation": "^1.0.11",
         "filepond-plugin-image-edit": "^1.6.3",
-        "cropperjs": "^1.6.2",
+        "cropperjs": "^2.1.0",
         "flatpickr": "^4.6.13"
     },
     "devDependencies": {
