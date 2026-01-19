@@ -1,8 +1,8 @@
 # Icon Picker
 
-The IconPicker component provides an icon selection grid with support for multiple icon libraries. It supports two modes:
-- **Embedded Icons**: Pre-defined icons embedded in the page (emoji, boxicons, heroicons, lucide)
-- **Blade Icons**: Dynamically loaded icons from any Blade Icons package with lazy loading and search
+The IconPicker component provides an icon selection grid with support for multiple icon libraries via Blade Icons.
+
+> **Note:** For emoji selection, use the dedicated `EmojiInput` component which provides a full emoji picker with categories and search.
 
 ## Basic Usage
 
@@ -10,7 +10,8 @@ The IconPicker component provides an icon selection grid with support for multip
 use Accelade\Forms\Components\IconPicker;
 
 IconPicker::make('icon')
-    ->label('Select Icon');
+    ->label('Select Icon')
+    ->bladeIcons();
 ```
 
 ## Blade Icons Mode
@@ -79,66 +80,9 @@ To render the selected icon in your Blade templates:
 @svg($icon, 'w-6 h-6')
 ```
 
-## Embedded Icon Sets
-
-The IconPicker supports multiple icon libraries. Use the `IconSet` enum for type-safe icon set selection:
-
-```php
-use Accelade\Forms\Components\IconPicker;
-use Accelade\Forms\Enums\IconSet;
-
-// Single icon set
-IconPicker::make('icon')
-    ->label('Choose Emoji')
-    ->sets([IconSet::Emoji])
-    ->searchable();
-
-// Multiple icon sets with tabs
-IconPicker::make('icon')
-    ->label('Choose Icon')
-    ->sets([IconSet::Emoji, IconSet::Boxicons, IconSet::Heroicons, IconSet::Lucide])
-    ->defaultSet(IconSet::Emoji)
-    ->searchable()
-    ->showIconName();
-
-// Single icon library
-IconPicker::make('icon')
-    ->label('Heroicons')
-    ->sets([IconSet::Heroicons])
-    ->searchable()
-    ->gridColumns(10);
-
-// Multiple libraries (no emoji)
-IconPicker::make('icon')
-    ->label('Icon Libraries')
-    ->sets([IconSet::Boxicons, IconSet::Heroicons, IconSet::Lucide])
-    ->defaultSet(IconSet::Heroicons);
-```
-
-### Available Icon Sets
-
-| Icon Set | Enum Value | Description |
-|----------|------------|-------------|
-| Emoji | `IconSet::Emoji` | Native Unicode emoji organized by categories |
-| Boxicons | `IconSet::Boxicons` | 700+ premium vector icons, regular and solid styles |
-| Heroicons | `IconSet::Heroicons` | Beautiful icons by Tailwind CSS creators |
-| Lucide | `IconSet::Lucide` | 1000+ community icons, fork of Feather |
-
-All icon libraries use **inline SVG** rendering - no external CSS or font files required.
-
-### String Values (Backward Compatible)
-
-String values are still supported for backward compatibility:
-
-```php
-IconPicker::make('icon')
-    ->sets(['emoji', 'heroicons'])
-    ->defaultSet('heroicons');
-```
-
 ## Custom Icons
 
-Provide custom icon set:
+Provide a custom icon set:
 
 ```php
 IconPicker::make('icon')
@@ -156,6 +100,7 @@ Enable icon search:
 ```php
 IconPicker::make('icon')
     ->label('Icon')
+    ->bladeIcons()
     ->searchable();
 ```
 
@@ -166,6 +111,7 @@ Set number of columns:
 ```php
 IconPicker::make('icon')
     ->label('Icon')
+    ->bladeIcons()
     ->gridColumns(6);
 ```
 
@@ -176,6 +122,7 @@ Display icon names:
 ```php
 IconPicker::make('icon')
     ->label('Icon')
+    ->bladeIcons()
     ->showIconName();
 ```
 
@@ -186,6 +133,7 @@ Allow selecting multiple icons:
 ```php
 IconPicker::make('icons')
     ->label('Icons')
+    ->bladeIcons()
     ->multiple()
     ->maxItems(5);
 ```
@@ -194,8 +142,8 @@ IconPicker::make('icons')
 
 | Method | Description |
 |--------|-------------|
-| `sets($sets)` | Set icon sets to include (array of IconSet enum or strings) |
-| `defaultSet($set)` | Set default icon set to display (IconSet enum or string) |
+| `bladeIcons()` | Enable Blade Icons mode with lazy loading |
+| `perPage($count)` | Set number of icons per page (default: 50) |
 | `icons($icons)` | Set available custom icons |
 | `searchable()` | Enable search |
 | `gridColumns($count)` | Set grid columns |
@@ -204,8 +152,6 @@ IconPicker::make('icons')
 | `maxItems($count)` | Limit selections |
 | `minItems($count)` | Require minimum |
 | `placeholder($text)` | Set placeholder |
-| `bladeIcons()` | Enable Blade Icons mode with lazy loading |
-| `perPage($count)` | Set number of icons per page (default: 50) |
 
 ## API Endpoints (Blade Icons Mode)
 
@@ -230,51 +176,23 @@ When using Blade Icons mode, the component uses these API endpoints:
 - `set` - Limit search to a specific set
 - `limit` - Maximum results (default: 50)
 
-## IconSet Enum
-
-The `IconSet` enum provides type-safe icon set selection:
-
-```php
-use Accelade\Forms\Enums\IconSet;
-
-// Available cases
-IconSet::Emoji      // 'emoji'
-IconSet::Boxicons   // 'boxicons'
-IconSet::Heroicons  // 'heroicons'
-IconSet::Lucide     // 'lucide'
-
-// Get display label
-IconSet::Heroicons->label(); // 'Heroicons'
-
-// Get all icon sets
-IconSet::all(); // [IconSet::Emoji, IconSet::Boxicons, IconSet::Heroicons, IconSet::Lucide]
-
-// Get all values as strings
-IconSet::values(); // ['emoji', 'boxicons', 'heroicons', 'lucide']
-```
-
 ## Blade Component
 
 You can also use the IconPicker as a Blade component:
 
 ```blade
-{{-- Basic icon picker --}}
+{{-- Basic icon picker with Blade Icons --}}
 <x-accelade::icon-picker
     name="icon"
     label="Select Icon"
-/>
-
-{{-- With specific icon sets --}}
-<x-accelade::icon-picker
-    name="icon"
-    label="Icon"
-    :sets="['heroicons', 'lucide']"
+    blade-icons
 />
 
 {{-- Searchable --}}
 <x-accelade::icon-picker
     name="icon"
     label="Icon"
+    blade-icons
     searchable
 />
 
@@ -282,6 +200,7 @@ You can also use the IconPicker as a Blade component:
 <x-accelade::icon-picker
     name="icon"
     label="Icon"
+    blade-icons
     :grid-columns="6"
 />
 
@@ -289,6 +208,7 @@ You can also use the IconPicker as a Blade component:
 <x-accelade::icon-picker
     name="icon"
     label="Icon"
+    blade-icons
     show-icon-name
 />
 
@@ -296,6 +216,7 @@ You can also use the IconPicker as a Blade component:
 <x-accelade::icon-picker
     name="icons"
     label="Icons"
+    blade-icons
     multiple
     :max-items="5"
 />
@@ -304,6 +225,7 @@ You can also use the IconPicker as a Blade component:
 <x-accelade::icon-picker
     name="category_icon"
     label="Category Icon"
+    blade-icons
     required
 />
 ```
@@ -315,8 +237,7 @@ You can also use the IconPicker as a Blade component:
 | `name` | string | Input name (required) |
 | `label` | string | Label text |
 | `value` | string/array | Selected icon(s) |
-| `sets` | array | Icon sets to include |
-| `default-set` | string | Default icon set |
+| `blade-icons` | bool | Enable Blade Icons mode |
 | `icons` | array | Custom available icons |
 | `searchable` | bool | Enable search |
 | `grid-columns` | int | Number of columns |

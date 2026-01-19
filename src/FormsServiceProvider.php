@@ -425,9 +425,6 @@ class FormsServiceProvider extends ServiceProvider
             var emptyState = wrapper.querySelector('.emoji-input-empty');
             var tabs = wrapper.querySelectorAll('.emoji-input-tab');
             var panels = wrapper.querySelectorAll('.emoji-input-panel');
-            var previewArea = wrapper.querySelector('.emoji-input-preview');
-            var previewIcon = wrapper.querySelector('.emoji-preview-icon');
-            var previewName = wrapper.querySelector('.emoji-preview-name');
 
             if (trigger && dropdown) {
                 trigger.addEventListener('click', function() {
@@ -493,18 +490,6 @@ class FormsServiceProvider extends ServiceProvider
                     items.forEach(function(i) {
                         i.classList.toggle('bg-primary-100', i.dataset.emoji === emoji);
                     });
-                });
-
-                // Preview on hover
-                item.addEventListener('mouseenter', function() {
-                    if (previewArea && previewIcon && previewName) {
-                        previewArea.classList.remove('hidden');
-                        previewIcon.textContent = item.dataset.emoji;
-                        previewName.textContent = item.dataset.name || '';
-                    }
-                });
-                item.addEventListener('mouseleave', function() {
-                    if (previewArea) previewArea.classList.add('hidden');
                 });
             });
 
@@ -1624,8 +1609,11 @@ HTML;
      */
     protected function configureComponents(): void
     {
-        // Register anonymous Blade components
+        // Register anonymous Blade components under forms namespace
         Blade::anonymousComponentPath(__DIR__.'/../resources/views/components', 'forms');
+
+        // Also register under accelade namespace for consistent usage
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components', 'accelade');
     }
 
     /**
@@ -1664,7 +1652,15 @@ HTML;
         $docs->registerPackage('forms', __DIR__.'/../docs');
 
         // Register forms navigation group
-        $docs->registerGroup('forms', 'Forms', 'form', 25);
+        $docs->registerGroup('forms', 'Forms', 'form', 35);
+
+        // Register sub-groups within Forms
+        $docs->registerSubgroup('forms', 'text-inputs', '📝 Text Inputs', '', 10);
+        $docs->registerSubgroup('forms', 'selection', '☑️ Selection', '', 20);
+        $docs->registerSubgroup('forms', 'datetime', '📅 Date & Time', '', 30);
+        $docs->registerSubgroup('forms', 'media', '📁 Media', '', 40);
+        $docs->registerSubgroup('forms', 'advanced', '⚡ Advanced', '', 50);
+        $docs->registerSubgroup('forms', 'reference', '📚 Reference', '', 60);
 
         // Register form component sections
         $this->registerFormInputDocs($docs);
@@ -1676,6 +1672,7 @@ HTML;
      */
     protected function registerFormInputDocs(DocsRegistry $docs): void
     {
+        // Main entry - no subgroup
         $docs->section('forms')
             ->label('Forms')
             ->markdown('getting-started.md')
@@ -1685,6 +1682,7 @@ HTML;
             ->inGroup('forms')
             ->register();
 
+        // Text Inputs subgroup
         $docs->section('text-input')
             ->label('Text Input')
             ->markdown('text-input.md')
@@ -1692,6 +1690,27 @@ HTML;
             ->icon('🔤')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('text-inputs')
+            ->register();
+
+        $docs->section('tel-input')
+            ->label('Telephone Input')
+            ->markdown('tel-input.md')
+            ->demo()
+            ->icon('📞')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('text-inputs')
+            ->register();
+
+        $docs->section('password-input')
+            ->label('Password Input')
+            ->markdown('password-input.md')
+            ->demo()
+            ->icon('🔒')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('text-inputs')
             ->register();
 
         $docs->section('textarea')
@@ -1701,51 +1720,7 @@ HTML;
             ->icon('📝')
             ->package('forms')
             ->inGroup('forms')
-            ->register();
-
-        $docs->section('select')
-            ->label('Select')
-            ->markdown('select.md')
-            ->demo()
-            ->icon('📜')
-            ->package('forms')
-            ->inGroup('forms')
-            ->register();
-
-        $docs->section('checkbox')
-            ->label('Checkbox')
-            ->markdown('checkbox.md')
-            ->demo()
-            ->icon('☑️')
-            ->package('forms')
-            ->inGroup('forms')
-            ->register();
-
-        $docs->section('checkbox-list')
-            ->label('Checkbox List')
-            ->markdown('checkbox-list.md')
-            ->demo()
-            ->icon('☑️')
-            ->package('forms')
-            ->inGroup('forms')
-            ->register();
-
-        $docs->section('radio')
-            ->label('Radio')
-            ->markdown('radio.md')
-            ->demo()
-            ->icon('🔘')
-            ->package('forms')
-            ->inGroup('forms')
-            ->register();
-
-        $docs->section('toggle-input')
-            ->label('Toggle Input')
-            ->markdown('toggle.md')
-            ->demo()
-            ->icon('🔄')
-            ->package('forms')
-            ->inGroup('forms')
+            ->inSubgroup('text-inputs')
             ->register();
 
         $docs->section('number-field')
@@ -1755,51 +1730,58 @@ HTML;
             ->icon('🔢')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('text-inputs')
             ->register();
 
-        $docs->section('slider')
-            ->label('Slider')
-            ->markdown('slider.md')
+        // Selection subgroup
+        $docs->section('select')
+            ->label('Select')
+            ->markdown('select.md')
             ->demo()
-            ->icon('📏')
+            ->icon('📜')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('selection')
             ->register();
 
-        $docs->section('date-picker')
-            ->label('Date Picker')
-            ->markdown('date-picker.md')
+        $docs->section('checkbox')
+            ->label('Checkbox')
+            ->markdown('checkbox.md')
             ->demo()
-            ->icon('📅')
+            ->icon('☑️')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('selection')
             ->register();
 
-        $docs->section('time-picker')
-            ->label('Time Picker')
-            ->markdown('time-picker.md')
+        $docs->section('checkbox-list')
+            ->label('Checkbox List')
+            ->markdown('checkbox-list.md')
             ->demo()
-            ->icon('⏰')
+            ->icon('☑️')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('selection')
             ->register();
 
-        $docs->section('color-picker')
-            ->label('Color Picker')
-            ->markdown('color-picker.md')
+        $docs->section('radio')
+            ->label('Radio')
+            ->markdown('radio.md')
             ->demo()
-            ->icon('🎨')
+            ->icon('🔘')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('selection')
             ->register();
 
-        $docs->section('file-upload')
-            ->label('File Upload')
-            ->markdown('file-upload.md')
+        $docs->section('toggle-input')
+            ->label('Toggle Input')
+            ->markdown('toggle.md')
             ->demo()
-            ->icon('📤')
+            ->icon('🔄')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('selection')
             ->register();
 
         $docs->section('toggle-buttons')
@@ -1809,6 +1791,38 @@ HTML;
             ->icon('🔲')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('selection')
+            ->register();
+
+        $docs->section('slider')
+            ->label('Slider')
+            ->markdown('slider.md')
+            ->demo()
+            ->icon('📏')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('selection')
+            ->register();
+
+        // Date & Time subgroup
+        $docs->section('date-picker')
+            ->label('Date Picker')
+            ->markdown('date-picker.md')
+            ->demo()
+            ->icon('📅')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('datetime')
+            ->register();
+
+        $docs->section('time-picker')
+            ->label('Time Picker')
+            ->markdown('time-picker.md')
+            ->demo()
+            ->icon('⏰')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('datetime')
             ->register();
 
         $docs->section('datetime-picker')
@@ -1818,6 +1832,7 @@ HTML;
             ->icon('📆')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('datetime')
             ->register();
 
         $docs->section('date-range-picker')
@@ -1827,6 +1842,28 @@ HTML;
             ->icon('📅')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('datetime')
+            ->register();
+
+        // Media subgroup
+        $docs->section('color-picker')
+            ->label('Color Picker')
+            ->markdown('color-picker.md')
+            ->demo()
+            ->icon('🎨')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('media')
+            ->register();
+
+        $docs->section('file-upload')
+            ->label('File Upload')
+            ->markdown('file-upload.md')
+            ->demo()
+            ->icon('📤')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('media')
             ->register();
     }
 
@@ -1835,6 +1872,7 @@ HTML;
      */
     protected function registerFormAdvancedDocs(DocsRegistry $docs): void
     {
+        // Advanced subgroup
         $docs->section('group')
             ->label('Group')
             ->markdown('group.md')
@@ -1842,6 +1880,7 @@ HTML;
             ->icon('📦')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('submit')
@@ -1851,6 +1890,7 @@ HTML;
             ->icon('🚀')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('tags-input')
@@ -1860,6 +1900,7 @@ HTML;
             ->icon('🏷️')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('key-value')
@@ -1869,6 +1910,7 @@ HTML;
             ->icon('🔑')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('repeater')
@@ -1878,6 +1920,7 @@ HTML;
             ->icon('🔁')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('rich-editor')
@@ -1887,6 +1930,7 @@ HTML;
             ->icon('✏️')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('tiptap-editor')
@@ -1896,6 +1940,7 @@ HTML;
             ->icon('📝')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('markdown-editor')
@@ -1905,6 +1950,7 @@ HTML;
             ->icon('📄')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('pin-input')
@@ -1914,6 +1960,7 @@ HTML;
             ->icon('🔐')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('rate-input')
@@ -1923,6 +1970,7 @@ HTML;
             ->icon('⭐')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
         $docs->section('icon-picker')
@@ -1932,14 +1980,27 @@ HTML;
             ->icon('😊')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('advanced')
             ->register();
 
+        $docs->section('emoji-input')
+            ->label('Emoji Input')
+            ->markdown('emoji-input.md')
+            ->demo()
+            ->icon('😃')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('advanced')
+            ->register();
+
+        // Reference subgroup
         $docs->section('forms-api')
             ->label('API Reference')
             ->markdown('api-reference.md')
             ->icon('📚')
             ->package('forms')
             ->inGroup('forms')
+            ->inSubgroup('reference')
             ->register();
     }
 }

@@ -9,10 +9,10 @@ namespace Accelade\Forms\Enums;
  */
 enum IconSet: string
 {
-    case Emoji = 'emoji';
     case Boxicons = 'boxicons';
     case Heroicons = 'heroicons';
     case Lucide = 'lucide';
+    case Emoji = 'emoji';
 
     /**
      * Get the display label for this icon set.
@@ -20,10 +20,10 @@ enum IconSet: string
     public function label(): string
     {
         return match ($this) {
-            self::Emoji => 'Emoji',
             self::Boxicons => 'Boxicons',
             self::Heroicons => 'Heroicons',
             self::Lucide => 'Lucide',
+            self::Emoji => 'Emoji',
         };
     }
 
@@ -35,10 +35,10 @@ enum IconSet: string
     public static function all(): array
     {
         return [
-            self::Emoji,
             self::Boxicons,
             self::Heroicons,
             self::Lucide,
+            self::Emoji,
         ];
     }
 

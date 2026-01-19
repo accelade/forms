@@ -12,14 +12,6 @@
         ->perPage(48)
         ->searchable()
         ->gridColumns(8);
-
-    // Emoji only picker (default)
-    $emojiPicker = IconPicker::make('emoji_icon')
-        ->label('Emoji Icon')
-        ->sets([IconSet::Emoji])
-        ->searchable()
-        ->showIconName()
-        ->gridColumns(8);
 @endphp
 
 <section class="rounded-xl p-6 mb-6 border border-[var(--docs-border)]" style="background: var(--docs-bg-alt);">
@@ -28,7 +20,7 @@
         <h3 class="text-lg font-semibold" style="color: var(--docs-text);">Icon Picker</h3>
     </div>
     <p class="text-sm mb-6" style="color: var(--docs-text-muted);">
-        Select icons from Emoji or any installed Blade Icons package. Supports searching, categories, and keyboard navigation.
+        Select icons from any installed Blade Icons package. Supports searching, categories, and keyboard navigation.
     </p>
 
     <div class="space-y-6 mb-6">
@@ -57,17 +49,11 @@
             </div>
         </div>
 
-        {{-- Emoji Only --}}
-        <div class="rounded-xl p-4 border border-amber-500/30" style="background: rgba(245, 158, 11, 0.1);">
-            <h4 class="font-medium mb-3 flex items-center gap-2" style="color: var(--docs-text);">
-                <span class="text-xs px-2 py-1 bg-amber-500/20 text-amber-500 rounded">Emoji</span>
-                Native Emoji Icons
-            </h4>
-            <p class="text-xs mb-3" style="color: var(--docs-text-muted);">
-                Unicode emoji organized by category: Smileys, Animals, Food, Activities, Travel, Objects, Symbols.
+        {{-- Note about Emoji --}}
+        <div class="rounded-lg p-3 border border-amber-500/30" style="background: rgba(245, 158, 11, 0.1);">
+            <p class="text-xs" style="color: var(--docs-text-muted);">
+                <strong class="text-amber-600 dark:text-amber-400">Note:</strong> For emoji selection, use the dedicated <code class="px-1 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800">EmojiInput</code> component which provides a full emoji picker with categories and search.
             </p>
-
-            {!! $emojiPicker !!}
         </div>
     </div>
 
@@ -84,15 +70,25 @@ use Accelade\Forms\Enums\IconSet;
 IconPicker::make('icon')
     ->label('Select Icon')
     ->bladeIcons()          // Enable Blade Icons mode
-    ->perPage(48)           // Icons per page (default: 48)
+    ->perPage(48)           // Icons per page (default: 50)
     ->searchable();
 
-// Emoji only (using IconSet enum)
+// Custom icons
 IconPicker::make('icon')
-    ->label('Choose Emoji')
-    ->sets([IconSet::Emoji])
+    ->label('Custom Icons')
+    ->icons([
+        'home', 'user', 'settings', 'search',
+        'heart', 'star', 'mail', 'phone',
+    ])
     ->searchable()
-    ->showIconName();
+    ->gridColumns(4);
+
+// Multiple selection
+IconPicker::make('icons')
+    ->label('Select Multiple Icons')
+    ->bladeIcons()
+    ->multiple()
+    ->maxItems(5);
         </x-accelade::code-block>
     </div>
 
@@ -107,16 +103,17 @@ IconPicker::make('icon')
                     Blade Icons
                 </h5>
                 <p class="text-xs" style="color: var(--docs-text-muted);">
-                    Any installed Blade Icons package (Heroicons, Feather, Font Awesome, etc.). Lazy loaded with infinite scroll.
+                    Any installed Blade Icons package (Heroicons, Feather, Font Awesome, Tabler, etc.). Lazy loaded with infinite scroll.
                 </p>
             </div>
 
             <div class="rounded-lg p-3" style="background: var(--docs-bg);">
                 <h5 class="text-sm font-medium mb-2 flex items-center gap-2" style="color: var(--docs-text);">
-                    <span class="text-lg">😀</span> Emoji
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    Custom Icons
                 </h5>
                 <p class="text-xs" style="color: var(--docs-text-muted);">
-                    Native Unicode emoji. No external dependencies. Categories: Smileys, Animals, Food, Activities, Travel, Objects, Symbols.
+                    Provide your own array of icon classes or names for project-specific icon sets.
                 </p>
             </div>
         </div>

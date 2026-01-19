@@ -82,13 +82,7 @@
                 </div>
             @endif
 
-            {{-- Preview area --}}
-            @if($showPreview)
-                <div class="emoji-input-preview hidden flex items-center gap-3 p-3 border-b border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
-                    <span class="emoji-preview-icon text-4xl"></span>
-                    <span class="emoji-preview-name text-sm text-gray-600 dark:text-gray-300"></span>
-                </div>
-            @endif
+            {{-- Preview area removed - was breaking emoji selection --}}
 
             {{-- Emoji grids --}}
             <div class="emoji-input-panels">

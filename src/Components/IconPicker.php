@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Accelade\Forms\Components;
 
-use Accelade\Forms\Data\IconEmojiData;
 use Accelade\Forms\Enums\IconSet;
 use Accelade\Forms\Field;
 use Accelade\Icons\BladeIconsRegistry;
@@ -14,7 +13,7 @@ use Closure;
  * Icon Picker Component
  *
  * A picker for selecting icons from multiple icon libraries.
- * Supports Emoji, Boxicons, Heroicons, Lucide icons, and any installed Blade Icons packages.
+ * Supports Boxicons, Heroicons, Lucide icons, and any installed Blade Icons packages.
  */
 class IconPicker extends Field
 {
@@ -34,7 +33,7 @@ class IconPicker extends Field
     protected int|Closure|null $minItems = null;
 
     /** @var array<int, string> Icon sets to include */
-    protected array $sets = ['emoji'];
+    protected array $sets = [];
 
     /** @var array<int, string> */
     protected array $categories = [];
@@ -100,7 +99,7 @@ class IconPicker extends Field
     /**
      * Get the default icon set.
      */
-    public function getDefaultSet(): string
+    public function getDefaultSet(): ?string
     {
         return $this->defaultSet ?? ($this->sets[0] ?? 'emoji');
     }
@@ -218,37 +217,13 @@ class IconPicker extends Field
      *
      * When using Blade Icons mode (bladeIcons()), icons are fetched via API.
      * For inline usage, provide custom icons via the icons() method.
-     * Emoji icons are always available as predefined data.
      *
      * @return array<string, array<string, array<string, string>>>
      */
     protected function getIconsBySets(): array
     {
-        $result = [];
-
-        foreach ($this->sets as $set) {
-            $icons = match ($set) {
-                'emoji' => $this->getEmojiIcons(),
-                // Other icon sets (boxicons, heroicons, lucide) are loaded via Blade Icons API
-                default => [],
-            };
-
-            if (! empty($icons)) {
-                $result[$set] = $icons;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Get Emoji icons organized by category.
-     *
-     * @return array<string, array<string, string>>
-     */
-    protected function getEmojiIcons(): array
-    {
-        return IconEmojiData::all();
+        // Icon sets (boxicons, heroicons, lucide) are loaded via Blade Icons API
+        return [];
     }
 
     /**
@@ -259,7 +234,6 @@ class IconPicker extends Field
     public function getSetLabels(): array
     {
         return [
-            'emoji' => 'Emoji',
             'boxicons' => 'Boxicons',
             'heroicons' => 'Heroicons',
             'lucide' => 'Lucide',
@@ -275,16 +249,6 @@ class IconPicker extends Field
     public function getCategoryLabels(): array
     {
         return [
-            // Emoji categories
-            'smileys' => 'Smileys & Emotion',
-            'people' => 'People & Body',
-            'animals' => 'Animals & Nature',
-            'food' => 'Food & Drink',
-            'travel' => 'Travel & Places',
-            'activities' => 'Activities',
-            'objects' => 'Objects',
-            'symbols' => 'Symbols',
-            'flags' => 'Flags',
             // Icon library categories
             'arrows' => 'Arrows',
             'brands' => 'Brands',
