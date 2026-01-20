@@ -1953,6 +1953,16 @@ HTML;
             ->inSubgroup('advanced')
             ->register();
 
+        $docs->section('code-editor')
+            ->label('Code Editor')
+            ->markdown('code-editor.md')
+            ->demo()
+            ->icon('💻')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('advanced')
+            ->register();
+
         $docs->section('pin-input')
             ->label('PIN Input')
             ->markdown('pin-input.md')
@@ -1988,6 +1998,26 @@ HTML;
             ->markdown('emoji-input.md')
             ->demo()
             ->icon('😃')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('advanced')
+            ->register();
+
+        $docs->section('google-map-picker')
+            ->label('Google Map Picker')
+            ->markdown('google-map-picker.md')
+            ->demo()
+            ->icon('🗺️')
+            ->package('forms')
+            ->inGroup('forms')
+            ->inSubgroup('advanced')
+            ->register();
+
+        $docs->section('mapbox-picker')
+            ->label('Mapbox Picker')
+            ->markdown('mapbox-picker.md')
+            ->demo()
+            ->icon('🗺️')
             ->package('forms')
             ->inGroup('forms')
             ->inSubgroup('advanced')

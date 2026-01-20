@@ -22,16 +22,295 @@ import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
 import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondPluginImageEdit from 'filepond-plugin-image-edit';
 
-// Import Cropper.js
+// Import Cropper.js v2
 import Cropper from 'cropperjs';
 
-// Import FilePond CSS
+// Import FilePond CSS - these will be injected into the JS bundle by vite-plugin-css-injected-by-js
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 import 'filepond-plugin-image-edit/dist/filepond-plugin-image-edit.min.css';
 
-// Import Cropper CSS
-import 'cropperjs/dist/cropper.min.css';
+// Note: Cropper.js v2 has no separate CSS - we style the cropper modal ourselves
+
+// Inject FilamentPHP-style FilePond theme CSS - Orange primary color
+const injectFilePondStyles = (): void => {
+    if (document.getElementById('filepond-filament-theme')) return;
+
+    const style = document.createElement('style');
+    style.id = 'filepond-filament-theme';
+    style.textContent = `
+        /* FilePond Filament Theme - Orange Primary (like FilamentPHP) */
+        .filepond--root {
+            font-family: inherit !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Drop zone - Clean styling without extra borders */
+        .filepond--panel-root {
+            background-color: transparent !important;
+            border: none !important;
+        }
+        .filepond--root {
+            background-color: transparent !important;
+            border: 2px dashed rgb(75 85 99) !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem !important;
+        }
+        .filepond--root:hover {
+            border-color: var(--color-primary-400, #fb923c) !important;
+        }
+        .filepond--root[data-hopper="active"] {
+            border-color: var(--color-primary-500, #f97316) !important;
+            background-color: rgba(251, 146, 60, 0.1) !important;
+        }
+
+        /* Drop label */
+        .filepond--drop-label {
+            color: rgb(107 114 128) !important;
+            font-size: 0.875rem !important;
+            padding: 2.5rem 1.5rem !important;
+            min-height: 6rem !important;
+        }
+        .filepond--drop-label label {
+            cursor: pointer !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 1rem !important;
+        }
+        /* Upload icon in drop label - larger like native HTML */
+        .filepond-upload-icon {
+            width: 3rem !important;
+            height: 3rem !important;
+            color: rgb(156 163 175) !important;
+        }
+        .dark .filepond-upload-icon {
+            color: rgb(107 114 128) !important;
+        }
+        .filepond-label-text {
+            display: block !important;
+            text-align: center !important;
+            font-size: 0.875rem !important;
+            line-height: 1.5rem !important;
+            color: rgb(75 85 99) !important;
+        }
+        .dark .filepond-label-text {
+            color: rgb(156 163 175) !important;
+        }
+        .filepond--label-action {
+            color: var(--color-primary-600, #ea580c) !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+        }
+        .filepond--label-action:hover {
+            color: var(--color-primary-500, #f97316) !important;
+        }
+        .dark .filepond--label-action {
+            color: var(--color-primary-400, #fb923c) !important;
+        }
+        .dark .filepond--label-action:hover {
+            color: var(--color-primary-300, #fdba74) !important;
+        }
+
+        /* File item panel - Orange/Primary gradient like Filament */
+        .filepond--item-panel {
+            background: linear-gradient(180deg, #ea580c 0%, #c2410c 100%) !important;
+            border-radius: 0.5rem !important;
+        }
+
+        /* File info - White text on colored background */
+        .filepond--file-info {
+            padding-left: 0.5rem !important;
+        }
+        .filepond--file-info-main {
+            font-size: 0.75rem !important;
+            font-weight: 500 !important;
+            color: #fff !important;
+        }
+        .filepond--file-info-sub {
+            font-size: 0.625rem !important;
+            color: rgba(255, 255, 255, 0.85) !important;
+            opacity: 1 !important;
+        }
+
+        /* File status - White text */
+        .filepond--file-status {
+            font-size: 0.625rem !important;
+        }
+        .filepond--file-status-main {
+            color: #fff !important;
+        }
+        .filepond--file-status-sub {
+            color: rgba(255, 255, 255, 0.85) !important;
+            opacity: 1 !important;
+        }
+
+        /* Action buttons - White on colored background */
+        .filepond--file-action-button {
+            cursor: pointer !important;
+            color: #fff !important;
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            transition: background-color 0.15s ease-in-out !important;
+        }
+        .filepond--file-action-button:hover,
+        .filepond--file-action-button:focus {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+        }
+
+        /* Progress indicator - White spinner */
+        .filepond--progress-indicator {
+            color: #fff !important;
+        }
+        .filepond--load-indicator {
+            color: #fff !important;
+        }
+        .filepond--processing-complete-indicator {
+            color: #fff !important;
+        }
+
+        /* Processing ring/arc color */
+        .filepond--progress-indicator svg {
+            color: #fff !important;
+        }
+
+        /* Error state - Red gradient */
+        .filepond--item[data-filepond-item-state*="error"] .filepond--item-panel,
+        .filepond--item[data-filepond-item-state*="invalid"] .filepond--item-panel {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important;
+        }
+
+        /* Idle state (waiting) - Gray gradient */
+        .filepond--item[data-filepond-item-state="idle"] .filepond--item-panel {
+            background: linear-gradient(180deg, #6b7280 0%, #4b5563 100%) !important;
+        }
+
+        /* Processing state - Orange gradient */
+        .filepond--item[data-filepond-item-state*="processing"] .filepond--item-panel,
+        .filepond--item[data-filepond-item-state*="uploading"] .filepond--item-panel {
+            background: linear-gradient(180deg, #ea580c 0%, #c2410c 100%) !important;
+        }
+
+        /* Success/Complete state - Green gradient like Filament */
+        .filepond--item[data-filepond-item-state="processing-complete"] .filepond--item-panel {
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+        }
+
+        /* Image preview */
+        .filepond--image-preview-wrapper {
+            background-color: rgb(17 24 39) !important;
+            border-radius: 0.375rem !important;
+        }
+        .filepond--image-preview {
+            background-color: rgb(17 24 39) !important;
+        }
+
+        /* Hide credits */
+        .filepond--credits {
+            display: none !important;
+        }
+
+        /* Edit button (from filepond-plugin-image-edit) */
+        .filepond--action-edit-item {
+            width: 1.625rem !important;
+            height: 1.625rem !important;
+            padding: 0 !important;
+            cursor: pointer !important;
+        }
+        .filepond--action-edit-item svg {
+            width: 1.25rem !important;
+            height: 1.25rem !important;
+        }
+        /* Make edit button visible */
+        .filepond--file .filepond--action-edit-item {
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #fff !important;
+            background-color: rgba(255, 255, 255, 0.15) !important;
+            transition: background-color 0.15s ease-in-out !important;
+        }
+        .filepond--file .filepond--action-edit-item:hover {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+        }
+
+        /* Drip blob - Orange */
+        .filepond--drip-blob {
+            background-color: rgba(234, 88, 12, 0.3) !important;
+        }
+
+        /* File wrapper */
+        .filepond--file-wrapper {
+            border: none !important;
+            padding: 0 !important;
+        }
+        .filepond--file {
+            padding: 0.5rem 0.625rem !important;
+        }
+
+        /* Avatar Mode */
+        .filepond-avatar .filepond--root,
+        .file-upload-avatar .filepond--root {
+            width: 150px !important;
+            margin: 0 auto !important;
+        }
+        .filepond-avatar .filepond--drop-label,
+        .file-upload-avatar .filepond--drop-label {
+            min-height: 150px !important;
+            padding: 1rem !important;
+        }
+        .filepond-avatar .filepond--panel-root,
+        .file-upload-avatar .filepond--panel-root {
+            border-radius: 9999px !important;
+        }
+        .filepond-avatar .filepond--image-preview-wrapper,
+        .file-upload-avatar .filepond--image-preview-wrapper {
+            border-radius: 9999px !important;
+        }
+        .filepond-avatar .filepond--item-panel,
+        .file-upload-avatar .filepond--item-panel {
+            border-radius: 9999px !important;
+        }
+
+        /* Dark Mode */
+        .dark .filepond--panel-root {
+            background-color: transparent !important;
+            border: none !important;
+        }
+        .dark .filepond--root {
+            background-color: transparent !important;
+            border: 2px dashed rgb(75 85 99) !important;
+        }
+        .dark .filepond--root:hover {
+            border-color: var(--color-primary-500, #f97316) !important;
+        }
+        .dark .filepond--root[data-hopper="active"] {
+            border-color: var(--color-primary-400, #fb923c) !important;
+            background-color: rgba(251, 146, 60, 0.1) !important;
+        }
+        .dark .filepond--drop-label {
+            color: rgb(156 163 175) !important;
+        }
+        /* File item panel keeps same colors in dark mode (colored gradient) */
+        .dark .filepond--drip-blob {
+            background-color: rgba(251, 146, 60, 0.3) !important;
+        }
+        .dark .filepond--image-preview-wrapper {
+            background-color: rgb(17 24 39) !important;
+        }
+        .dark .filepond--image-preview {
+            background-color: rgb(17 24 39) !important;
+        }
+    `;
+    document.head.appendChild(style);
+};
+
+// Inject styles immediately
+if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectFilePondStyles);
+    } else {
+        injectFilePondStyles();
+    }
+}
 
 // Register FilePond plugins (order matters - image-edit should be after preview)
 FilePond.registerPlugin(
@@ -51,8 +330,8 @@ import type { FilePondFile } from 'filepond';
 // Type for FilePond instance
 type FilePondInstance = ReturnType<typeof FilePond.create>;
 
-// Type for Cropper instance
-type CropperInstance = Cropper;
+// Type for Cropper instance (v2)
+type CropperInstance = InstanceType<typeof Cropper>;
 
 interface FileUploadConfig {
     uploadUrl: string;
@@ -376,10 +655,11 @@ export class FileUploadManager {
             options.imagePreviewMaxHeight = parseInt(this.config.imagePreviewHeight);
         }
 
-        // Label idle text
-        const dragDropText = 'Drag & Drop your files or';
-        const browseText = 'Browse';
-        options.labelIdle = this.config.uploadingMessage || `${dragDropText} <span class="filepond--label-action">${browseText}</span>`;
+        // Label idle text - matching native HTML file input style
+        const uploadIcon = `<svg class="filepond-upload-icon" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>`;
+        const uploadText = 'Upload a file';
+        const dragDropText = 'or drag and drop';
+        options.labelIdle = this.config.uploadingMessage || `${uploadIcon}<span class="filepond-label-text"><span class="filepond--label-action">${uploadText}</span> ${dragDropText}</span>`;
 
         // Image transformation options
         if (this.config.imageCrop || this.config.imageResize.width || this.config.imageResize.height) {
@@ -663,22 +943,17 @@ export class FileUploadManager {
                             : parseAspectRatio(String(self.config.imageCropAspectRatio));
                     }
 
-                    // Initialize Cropper.js
-                    cropper = new Cropper(img, {
-                        viewMode: (self.config.imageEditorMode || 1) as Cropper.ViewMode,
-                        dragMode: 'move',
-                        aspectRatio: initialAspectRatio,
-                        autoCropArea: 1,
-                        restore: false,
-                        guides: true,
-                        center: true,
-                        highlight: true,
-                        cropBoxMovable: true,
-                        cropBoxResizable: !self.config.circleCropper && !self.config.isAvatar,
-                        toggleDragModeOnDblclick: false,
-                        responsive: true,
-                        checkOrientation: true,
-                    });
+                    // Initialize Cropper.js v2
+                    // v2 uses Web Components - options are minimal, config is done via selection element
+                    cropper = new Cropper(img);
+
+                    // Wait for cropper to be ready, then configure selection
+                    setTimeout(() => {
+                        const cropperSelection = cropper?.getCropperSelection();
+                        if (cropperSelection && !isNaN(initialAspectRatio)) {
+                            cropperSelection.aspectRatio = initialAspectRatio;
+                        }
+                    }, 100);
 
                     // Create aspect ratio buttons if aspect ratios are provided (not for circle cropper)
                     if (aspectRatioGroup && self.config.imageEditorAspectRatios && !self.config.circleCropper && !self.config.isAvatar) {
@@ -697,7 +972,11 @@ export class FileUploadManager {
                             }
 
                             ratioBtn.onclick = () => {
-                                cropper?.setAspectRatio(ratioValue);
+                                // In v2, aspectRatio is set on the CropperSelection element
+                                const cropperSelection = cropper?.getCropperSelection();
+                                if (cropperSelection) {
+                                    cropperSelection.aspectRatio = ratioValue;
+                                }
 
                                 // Update active state
                                 if (activeAspectBtn) {
@@ -711,22 +990,47 @@ export class FileUploadManager {
                         });
                     }
 
-                    // Action button handlers
-                    rotateLeftBtn.onclick = () => cropper?.rotate(-90);
-                    rotateRightBtn.onclick = () => cropper?.rotate(90);
+                    // Action button handlers - Cropper.js v2 API
+                    // In v2, methods are on CropperImage and CropperSelection elements
+                    let flipXState = 1;
+                    let flipYState = 1;
+
+                    rotateLeftBtn.onclick = () => {
+                        const cropperImage = cropper?.getCropperImage();
+                        cropperImage?.$rotate('-90deg');
+                    };
+                    rotateRightBtn.onclick = () => {
+                        const cropperImage = cropper?.getCropperImage();
+                        cropperImage?.$rotate('90deg');
+                    };
                     flipHBtn.onclick = () => {
-                        if (!cropper) return;
-                        const data = cropper.getData();
-                        cropper.scaleX((data.scaleX || 1) * -1);
+                        const cropperImage = cropper?.getCropperImage();
+                        if (!cropperImage) return;
+                        flipXState *= -1;
+                        cropperImage.$scale(flipXState, flipYState);
                     };
                     flipVBtn.onclick = () => {
-                        if (!cropper) return;
-                        const data = cropper.getData();
-                        cropper.scaleY((data.scaleY || 1) * -1);
+                        const cropperImage = cropper?.getCropperImage();
+                        if (!cropperImage) return;
+                        flipYState *= -1;
+                        cropperImage.$scale(flipXState, flipYState);
                     };
-                    zoomInBtn.onclick = () => cropper?.zoom(0.1);
-                    zoomOutBtn.onclick = () => cropper?.zoom(-0.1);
-                    resetBtn.onclick = () => cropper?.reset();
+                    zoomInBtn.onclick = () => {
+                        const cropperImage = cropper?.getCropperImage();
+                        cropperImage?.$zoom(0.1);
+                    };
+                    zoomOutBtn.onclick = () => {
+                        const cropperImage = cropper?.getCropperImage();
+                        cropperImage?.$zoom(-0.1);
+                    };
+                    resetBtn.onclick = () => {
+                        const cropperImage = cropper?.getCropperImage();
+                        const cropperSelection = cropper?.getCropperSelection();
+                        cropperImage?.$resetTransform();
+                        cropperSelection?.$reset();
+                        flipXState = 1;
+                        flipYState = 1;
+                    };
 
                     // Handle confirm
                     confirmBtn.onclick = () => {
@@ -738,73 +1042,87 @@ export class FileUploadManager {
                             return;
                         }
 
-                        const canvas = cropper.getCroppedCanvas({
-                            maxWidth: self.config.imageResize.width || 4096,
-                            maxHeight: self.config.imageResize.height || 4096,
-                            imageSmoothingEnabled: true,
-                            imageSmoothingQuality: 'high',
-                            fillColor: self.config.imageEditorEmptyFillColor || '#fff',
-                        });
-
-                        canvas.toBlob((blob) => {
-                            if (!blob) {
-                                console.error('[FileUpload] Failed to create blob from cropped image');
-                                cleanup();
-                                if (typeof oncancel === 'function') {
-                                    oncancel();
-                                }
-                                return;
+                        // Cropper.js v2: use getCropperSelection().$toCanvas() which returns a Promise
+                        const cropperSelection = cropper.getCropperSelection();
+                        if (!cropperSelection) {
+                            console.error('[FileUpload] No cropper selection found');
+                            cleanup();
+                            if (typeof oncancel === 'function') {
+                                oncancel();
                             }
+                            return;
+                        }
 
-                            const editedFile = new File([blob], file.name, {
-                                type: file.type || 'image/jpeg',
-                                lastModified: Date.now(),
-                            });
-
-                            // Handle edited file - always remove old and add new
-                            // FilePond's imageEditEditor API doesn't always provide onconfirm callback
-                            // So we handle ALL cases by removing the old file and adding the edited one
-                            if (originalFileItem && self.pond) {
-                                const allFiles = self.pond.getFiles();
-                                const originalIndex = allFiles.indexOf(originalFileItem);
-
-                                // Remove the old file without reverting on server
-                                self.pond.removeFile(originalFileItem.id, { revert: false });
-
-                                // Wait a tick for removal to complete, then add the edited file
-                                setTimeout(() => {
-                                    if (!self.pond) {
-                                        cleanup();
-                                        return;
-                                    }
-
-                                    // Set flag to prevent editor from re-opening
-                                    isAddingEditedFile = true;
-
-                                    // Add the edited file back at the same position
-                                    self.pond.addFile(editedFile, {
-                                        index: originalIndex >= 0 ? originalIndex : undefined,
-                                    }).then(() => {
-                                        // Reset flag after file is added
-                                        isAddingEditedFile = false;
-                                    }).catch(() => {
-                                        isAddingEditedFile = false;
-                                    });
-
+                        cropperSelection.$toCanvas({
+                            width: self.config.imageResize.width || 4096,
+                            height: self.config.imageResize.height || undefined,
+                        }).then((canvas: HTMLCanvasElement) => {
+                            canvas.toBlob((blob: Blob | null) => {
+                                if (!blob) {
+                                    console.error('[FileUpload] Failed to create blob from cropped image');
                                     cleanup();
-                                }, 50);
-                            } else if (typeof onconfirm === 'function') {
-                                // Fallback to onconfirm if available
-                                cleanup();
-                                onconfirm(editedFile);
-                            } else {
-                                // Last resort - just add the file
-                                if (self.pond) {
-                                    self.pond.addFile(editedFile);
+                                    if (typeof oncancel === 'function') {
+                                        oncancel();
+                                    }
+                                    return;
                                 }
-                                cleanup();
+
+                                const editedFile = new File([blob], file.name, {
+                                    type: file.type || 'image/jpeg',
+                                    lastModified: Date.now(),
+                                });
+
+                                // Handle edited file - always remove old and add new
+                                // FilePond's imageEditEditor API doesn't always provide onconfirm callback
+                                // So we handle ALL cases by removing the old file and adding the edited one
+                                if (originalFileItem && self.pond) {
+                                    const allFiles = self.pond.getFiles();
+                                    const originalIndex = allFiles.indexOf(originalFileItem);
+
+                                    // Remove the old file without reverting on server
+                                    self.pond.removeFile(originalFileItem.id, { revert: false });
+
+                                    // Wait a tick for removal to complete, then add the edited file
+                                    setTimeout(() => {
+                                        if (!self.pond) {
+                                            cleanup();
+                                            return;
+                                        }
+
+                                        // Set flag to prevent editor from re-opening
+                                        isAddingEditedFile = true;
+
+                                        // Add the edited file back at the same position
+                                        self.pond.addFile(editedFile, {
+                                            index: originalIndex >= 0 ? originalIndex : undefined,
+                                        }).then(() => {
+                                            // Reset flag after file is added
+                                            isAddingEditedFile = false;
+                                        }).catch(() => {
+                                            isAddingEditedFile = false;
+                                        });
+
+                                        cleanup();
+                                    }, 50);
+                                } else if (typeof onconfirm === 'function') {
+                                    // Fallback to onconfirm if available
+                                    cleanup();
+                                    onconfirm(editedFile);
+                                } else {
+                                    // Last resort - just add the file
+                                    if (self.pond) {
+                                        self.pond.addFile(editedFile);
+                                    }
+                                    cleanup();
+                                }
+                            }, file.type || 'image/jpeg', 0.92);
+                        }).catch((err: Error) => {
+                            console.error('[FileUpload] Failed to get cropped canvas:', err);
+                            cleanup();
+                            if (typeof oncancel === 'function') {
+                                oncancel();
                             }
-                        }, file.type || 'image/jpeg', 0.92);
+                        });
                     };
 
                     // Handle cancel
@@ -875,7 +1193,7 @@ export class FileUploadManager {
      */
     private createEditorWindow(): HTMLElement {
         const window = document.createElement('div');
-        window.className = 'filepond-image-editor-window flex flex-col w-full max-w-5xl max-h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden';
+        window.className = 'filepond-image-editor-window flex flex-col w-full max-w-6xl h-[85vh] bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden';
 
         if (this.config.imageEditorViewportWidth) {
             window.style.width = this.config.imageEditorViewportWidth;
@@ -892,7 +1210,7 @@ export class FileUploadManager {
      */
     private createImageContainer(): HTMLElement {
         const container = document.createElement('div');
-        container.className = 'flex-1 flex items-center justify-center p-6 bg-gray-100 dark:bg-gray-900 min-h-96 max-h-[calc(90vh-100px)] overflow-hidden';
+        container.className = 'flex-1 flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-900 min-h-[500px] overflow-hidden';
 
         if (this.config.imageEditorEmptyFillColor) {
             container.style.backgroundColor = this.config.imageEditorEmptyFillColor;

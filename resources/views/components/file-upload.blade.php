@@ -157,67 +157,373 @@
 @push('styles')
 {{-- FilePond and Cropper.js CSS are now bundled via npm imports in FileUploadManager.ts --}}
 <style>
-/* FilePond Base Styles */
+/* ================================================
+   FilePond Filament Theme - Orange Primary (like FilamentPHP)
+   ================================================ */
+
+/* Base FilePond Root */
 .filepond--root {
     font-family: inherit;
+    margin-bottom: 0;
 }
 
-/* Avatar Mode Styles */
-.filepond-avatar .filepond--root {
+/* Panel Root - Remove extra borders */
+.filepond--panel-root {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Root - Single dashed border */
+.filepond--root {
+    background-color: transparent !important;
+    border: 2px dashed rgb(75 85 99) !important;
+    border-radius: 0.5rem !important;
+    padding: 0.5rem !important;
+}
+
+.filepond--root:hover {
+    border-color: var(--color-primary-400, #fb923c) !important;
+}
+
+/* Dragging/Drop State */
+.filepond--root[data-hopper="active"] {
+    border-color: var(--color-primary-500, #f97316) !important;
+    background-color: rgba(251, 146, 60, 0.1) !important;
+}
+
+/* Drop Label - The idle text */
+.filepond--drop-label {
+    color: rgb(107 114 128) !important;
+    font-size: 0.875rem !important;
+    padding: 2.5rem 1.5rem !important;
+    min-height: 6rem !important;
+}
+
+.filepond--drop-label label {
+    cursor: pointer;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 1rem !important;
+}
+
+/* Upload icon in drop label - larger like native HTML */
+.filepond-upload-icon {
+    width: 3rem !important;
+    height: 3rem !important;
+    color: rgb(156 163 175) !important;
+}
+
+.dark .filepond-upload-icon {
+    color: rgb(107 114 128) !important;
+}
+
+.filepond-label-text {
+    display: block !important;
+    text-align: center !important;
+    font-size: 0.875rem !important;
+    line-height: 1.5rem !important;
+    color: rgb(75 85 99) !important;
+}
+
+.dark .filepond-label-text {
+    color: rgb(156 163 175) !important;
+}
+
+/* Label Action - The "Upload a file" link - Primary color like native */
+.filepond--label-action {
+    color: var(--color-primary-600, #ea580c) !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+}
+
+.filepond--label-action:hover {
+    color: var(--color-primary-500, #f97316) !important;
+}
+
+.dark .filepond--label-action {
+    color: var(--color-primary-400, #fb923c) !important;
+}
+
+.dark .filepond--label-action:hover {
+    color: var(--color-primary-300, #fdba74) !important;
+}
+
+/* File Item Panel - Orange gradient like Filament's primary color */
+.filepond--item-panel {
+    background: linear-gradient(180deg, #ea580c 0%, #c2410c 100%) !important;
+    border-radius: 0.5rem !important;
+}
+
+/* File Info - White text on colored background */
+.filepond--file-info {
+    padding-left: 0.5rem !important;
+}
+
+.filepond--file-info-main {
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    color: #fff !important;
+}
+
+.filepond--file-info-sub {
+    font-size: 0.625rem !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    opacity: 1 !important;
+}
+
+/* File Status - White text */
+.filepond--file-status {
+    font-size: 0.625rem !important;
+}
+
+.filepond--file-status-main {
+    color: #fff !important;
+}
+
+.filepond--file-status-sub {
+    color: rgba(255, 255, 255, 0.85) !important;
+    opacity: 1 !important;
+}
+
+/* Action Buttons - White on colored background */
+.filepond--file-action-button {
+    cursor: pointer !important;
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    transition: background-color 0.15s ease-in-out !important;
+}
+
+.filepond--file-action-button:hover,
+.filepond--file-action-button:focus {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Progress Indicator - White spinner */
+.filepond--progress-indicator {
+    color: #fff !important;
+}
+
+.filepond--load-indicator {
+    color: #fff !important;
+}
+
+/* Processing Ring - White */
+.filepond--file-wrapper .filepond--file .filepond--progress-indicator svg {
+    color: #fff !important;
+}
+
+/* Processing Complete Indicator - White checkmark */
+.filepond--processing-complete-indicator {
+    color: #fff !important;
+}
+
+/* Error State - Red gradient */
+.filepond--item[data-filepond-item-state*="error"] .filepond--item-panel,
+.filepond--item[data-filepond-item-state*="invalid"] .filepond--item-panel {
+    background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+/* Idle state (waiting) - Gray gradient */
+.filepond--item[data-filepond-item-state="idle"] .filepond--item-panel {
+    background: linear-gradient(180deg, #6b7280 0%, #4b5563 100%) !important;
+}
+
+/* Processing state - Orange gradient */
+.filepond--item[data-filepond-item-state*="processing"] .filepond--item-panel,
+.filepond--item[data-filepond-item-state*="uploading"] .filepond--item-panel {
+    background: linear-gradient(180deg, #ea580c 0%, #c2410c 100%) !important;
+}
+
+/* Success/Complete State - Green gradient like Filament */
+.filepond--item[data-filepond-item-state="processing-complete"] .filepond--item-panel {
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+}
+
+/* Image Preview */
+.filepond--image-preview-wrapper {
+    background-color: rgb(17 24 39) !important;
+    border-radius: 0.375rem !important;
+}
+
+.filepond--image-preview {
+    background-color: rgb(17 24 39) !important;
+}
+
+/* Credits Hidden */
+.filepond--credits {
+    display: none !important;
+}
+
+/* Edit button (from filepond-plugin-image-edit) */
+.filepond--action-edit-item {
+    width: 1.625rem !important;
+    height: 1.625rem !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+}
+
+.filepond--action-edit-item svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
+
+/* Make edit button visible */
+.filepond--file .filepond--action-edit-item {
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    transition: background-color 0.15s ease-in-out !important;
+}
+
+.filepond--file .filepond--action-edit-item:hover {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Drip Blob Animation - Orange */
+.filepond--drip-blob {
+    background-color: rgba(234, 88, 12, 0.3) !important;
+}
+
+/* File wrapper */
+.filepond--file-wrapper {
+    border: none !important;
+    padding: 0 !important;
+}
+
+.filepond--file {
+    padding: 0.5rem 0.625rem !important;
+}
+
+/* ================================================
+   Avatar Mode Styles
+   ================================================ */
+.filepond-avatar .filepond--root,
+.file-upload-avatar .filepond--root {
     width: 150px;
     margin: 0 auto;
 }
 
-.filepond-avatar .filepond--drop-label {
+.filepond-avatar .filepond--drop-label,
+.file-upload-avatar .filepond--drop-label {
     min-height: 150px;
+    padding: 1rem !important;
 }
 
-.filepond-avatar .filepond--image-preview-wrapper {
-    border-radius: 9999px;
+.filepond-avatar .filepond--panel-root,
+.file-upload-avatar .filepond--panel-root {
+    border-radius: 9999px !important;
 }
 
-.filepond-avatar .filepond--panel-root {
-    border-radius: 9999px;
+.filepond-avatar .filepond--image-preview-wrapper,
+.file-upload-avatar .filepond--image-preview-wrapper {
+    border-radius: 9999px !important;
 }
 
-.filepond-avatar .filepond--item-panel {
-    border-radius: 9999px;
+.filepond-avatar .filepond--item-panel,
+.file-upload-avatar .filepond--item-panel {
+    border-radius: 9999px !important;
 }
 
 /* Circle Cropper */
 .filepond--image-preview.circle-mask .filepond--image-preview-wrapper {
-    border-radius: 9999px;
+    border-radius: 9999px !important;
 }
 
-/* Dark Mode Support */
+/* ================================================
+   Dark Mode Support - Filament Style
+   ================================================ */
 .dark .filepond--panel-root {
-    background-color: rgb(31 41 55);
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.dark .filepond--root {
+    background-color: transparent !important;
+    border: 2px dashed rgb(75 85 99) !important;
+}
+
+.dark .filepond--root:hover {
+    border-color: var(--color-primary-500, #f97316) !important;
+}
+
+.dark .filepond--root[data-hopper="active"] {
+    border-color: var(--color-primary-400, #fb923c) !important;
+    background-color: rgba(251, 146, 60, 0.1) !important;
 }
 
 .dark .filepond--drop-label {
-    color: rgb(156 163 175);
+    color: rgb(156 163 175) !important;
 }
 
-.dark .filepond--label-action {
-    color: rgb(96 165 250);
-}
-
-.dark .filepond--label-action:hover {
-    color: rgb(147 197 253);
-}
+/* File item panel keeps colored gradient in dark mode */
 
 .dark .filepond--drip-blob {
-    background-color: rgb(55 65 81);
+    background-color: rgba(251, 146, 60, 0.3) !important;
 }
 
-/* Native Upload Drag States */
+.dark .filepond--image-preview-wrapper {
+    background-color: rgb(17 24 39) !important;
+}
+
+.dark .filepond--image-preview {
+    background-color: rgb(17 24 39) !important;
+}
+
+/* ================================================
+   Download/Open Button Styles
+   ================================================ */
+.filepond-download-button,
+.filepond-open-button {
+    background: transparent !important;
+    border: none !important;
+    padding: 0.25rem !important;
+    margin: 0 0.125rem !important;
+}
+
+.filepond-download-button svg,
+.filepond-open-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* ================================================
+   Native Upload Styles - Orange Accent
+   ================================================ */
+.file-upload-dropzone {
+    transition: all 0.15s ease-in-out;
+}
+
+.file-upload-dropzone:focus-within {
+    border-color: #ea580c !important;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1) !important;
+}
+
 .file-upload-dropzone.drag-over {
-    border-color: rgb(59 130 246);
-    background-color: rgb(239 246 255);
+    border-color: #ea580c !important;
+    background-color: #fff7ed !important;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1) !important;
+}
+
+.dark .file-upload-dropzone {
+    background-color: rgb(55 65 81);
+    border-color: rgb(75 85 99);
+}
+
+.dark .file-upload-dropzone:hover {
+    border-color: rgb(107 114 128);
+}
+
+.dark .file-upload-dropzone:focus-within {
+    border-color: #fb923c !important;
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.15) !important;
 }
 
 .dark .file-upload-dropzone.drag-over {
-    background-color: rgb(30 58 138 / 0.2);
+    border-color: #fb923c !important;
+    background-color: rgba(234, 88, 12, 0.15) !important;
+    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.15) !important;
 }
 
 /* Native File List */
@@ -232,8 +538,8 @@
 }
 
 .dark .file-upload-list .file-item {
-    background: rgb(31 41 55);
-    border-color: rgb(55 65 81);
+    background: rgb(55 65 81);
+    border-color: rgb(75 85 99);
 }
 
 .file-upload-list .file-item .file-preview {
@@ -246,7 +552,7 @@
 }
 
 .dark .file-upload-list .file-item .file-preview {
-    background: rgb(55 65 81);
+    background: rgb(75 85 99);
 }
 
 .file-upload-list .file-item .file-preview img {
@@ -287,6 +593,148 @@
 
 .file-upload-list .file-item .file-remove:hover {
     color: rgb(239 68 68);
+}
+
+/* ================================================
+   Image Editor Modal Styles
+   ================================================ */
+.filepond-image-editor-overlay {
+    z-index: 9999 !important;
+}
+
+.filepond-image-editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgb(249 250 251);
+    border-top: 1px solid rgb(229 231 235);
+}
+
+.dark .filepond-image-editor-toolbar {
+    background: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+}
+
+.filepond-image-editor-actions,
+.filepond-image-editor-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.filepond-image-editor-aspect-ratios {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.filepond-image-editor-aspect-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgb(107 114 128);
+    margin-right: 0.25rem;
+}
+
+.dark .filepond-image-editor-aspect-label {
+    color: rgb(156 163 175);
+}
+
+.filepond-image-editor-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.filepond-image-editor-btn-default {
+    background: rgb(255 255 255);
+    border-color: rgb(209 213 219);
+    color: rgb(55 65 81);
+}
+
+.filepond-image-editor-btn-default:hover {
+    background: rgb(243 244 246);
+    border-color: rgb(156 163 175);
+}
+
+.dark .filepond-image-editor-btn-default {
+    background: rgb(55 65 81);
+    border-color: rgb(75 85 99);
+    color: rgb(229 231 235);
+}
+
+.dark .filepond-image-editor-btn-default:hover {
+    background: rgb(75 85 99);
+    border-color: rgb(107 114 128);
+}
+
+.filepond-image-editor-btn-primary {
+    background: #ea580c;
+    border-color: #ea580c;
+    color: rgb(255 255 255);
+}
+
+.filepond-image-editor-btn-primary:hover {
+    background: #c2410c;
+    border-color: #c2410c;
+}
+
+.filepond-image-editor-btn-secondary {
+    background: rgb(255 255 255);
+    border-color: rgb(209 213 219);
+    color: rgb(55 65 81);
+}
+
+.filepond-image-editor-btn-secondary:hover {
+    background: rgb(243 244 246);
+}
+
+.dark .filepond-image-editor-btn-secondary {
+    background: rgb(55 65 81);
+    border-color: rgb(75 85 99);
+    color: rgb(229 231 235);
+}
+
+.dark .filepond-image-editor-btn-secondary:hover {
+    background: rgb(75 85 99);
+}
+
+.filepond-image-editor-btn-destructive {
+    background: rgb(255 255 255);
+    border-color: rgb(252 165 165);
+    color: rgb(185 28 28);
+}
+
+.filepond-image-editor-btn-destructive:hover {
+    background: rgb(254 242 242);
+    border-color: rgb(248 113 113);
+}
+
+.dark .filepond-image-editor-btn-destructive {
+    background: rgb(127 29 29 / 0.3);
+    border-color: rgb(185 28 28);
+    color: rgb(248 113 113);
+}
+
+.dark .filepond-image-editor-btn-destructive:hover {
+    background: rgb(127 29 29 / 0.5);
+}
+
+.filepond-image-editor-btn-active {
+    background: #ea580c !important;
+    border-color: #ea580c !important;
+    color: rgb(255 255 255) !important;
 }
 </style>
 @endpush

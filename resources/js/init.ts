@@ -2,6 +2,14 @@
  * Forms initialization
  */
 
+// IMPORTANT: DateTimePickerManager must be imported FIRST
+// It patches CSSStyleSheet methods to prevent SecurityError on cross-origin stylesheets
+import { DateTimePickerManager } from './components/DateTimePickerManager';
+
+// Then import FileUploadManager (has its own style injection)
+import { FileUploadManager } from './components/FileUploadManager';
+
+// Other managers
 import { PinInputManager } from './components/PinInputManager';
 import { TagsInputManager } from './components/TagsInputManager';
 import { KeyValueManager } from './components/KeyValueManager';
@@ -18,10 +26,11 @@ import { MarkdownEditorManager } from './components/MarkdownEditorManager';
 import { EmojiInputManager } from './components/EmojiInputManager';
 import { SelectManager } from './components/SelectManager';
 import { CheckboxListManager } from './components/CheckboxListManager';
-import { FileUploadManager } from './components/FileUploadManager';
 import { MediaBrowserManager } from './components/MediaBrowserManager';
-import { DateTimePickerManager } from './components/DateTimePickerManager';
 import { TextareaManager } from './components/TextareaManager';
+import { GoogleMapPickerManager } from './components/GoogleMapPickerManager';
+import { MapboxPickerManager } from './components/MapboxPickerManager';
+import { CodeEditorManager } from './components/CodeEditorManager';
 
 /**
  * Initialize all form components
@@ -47,6 +56,9 @@ export function initForms(): void {
     MediaBrowserManager.initAll();
     DateTimePickerManager.initAll();
     TextareaManager.initAll();
+    GoogleMapPickerManager.initAll();
+    MapboxPickerManager.initAll();
+    CodeEditorManager.initAll();
 }
 
 /**
@@ -84,5 +96,8 @@ if (typeof window !== 'undefined') {
         MediaBrowser: MediaBrowserManager,
         DateTimePicker: DateTimePickerManager,
         Textarea: TextareaManager,
+        GoogleMapPicker: GoogleMapPickerManager,
+        MapboxPicker: MapboxPickerManager,
+        CodeEditor: CodeEditorManager,
     };
 }

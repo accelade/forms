@@ -25,6 +25,7 @@ export { FileUploadManager } from './components/FileUploadManager';
 export { MediaBrowserManager } from './components/MediaBrowserManager';
 export { DateTimePickerManager } from './components/DateTimePickerManager';
 export { TextareaManager } from './components/TextareaManager';
+export { CodeEditorManager } from './components/CodeEditorManager';
 
 // Types
 export type { FormsConfig } from './types';

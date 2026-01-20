@@ -239,92 +239,98 @@
     @enderror
 </div>
 
-{{-- GitHub-style Markdown CSS --}}
+{{-- Markdown Preview CSS (matching TipTap editor style) --}}
 <style>
-    /* GitHub Markdown Body - Light Mode */
+    /* Markdown Preview - Light Mode */
     .markdown-body {
-        color: #1f2328;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-        font-size: 16px;
-        line-height: 1.5;
+        color: #171717;
+        font-size: 1rem;
+        line-height: 1.75;
         word-wrap: break-word;
     }
 
     /* Headings */
-    .markdown-body h1,
-    .markdown-body h2,
-    .markdown-body h3,
-    .markdown-body h4,
-    .markdown-body h5,
-    .markdown-body h6 {
-        margin-top: 24px;
-        margin-bottom: 16px;
-        font-weight: 600;
-        line-height: 1.25;
-        color: #1f2328;
-    }
-
     .markdown-body h1 {
-        padding-bottom: 0.3em;
-        font-size: 2em;
-        border-bottom: 1px solid #d1d9e0;
+        font-size: 1.875rem;
+        font-weight: 700;
+        line-height: 1.25;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: #171717;
     }
+    .markdown-body h1:first-child { margin-top: 0; }
 
     .markdown-body h2 {
-        padding-bottom: 0.3em;
-        font-size: 1.5em;
-        border-bottom: 1px solid #d1d9e0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-top: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: #171717;
     }
+    .markdown-body h2:first-child { margin-top: 0; }
 
-    .markdown-body h3 { font-size: 1.25em; }
-    .markdown-body h4 { font-size: 1em; }
-    .markdown-body h5 { font-size: 0.875em; }
-    .markdown-body h6 { font-size: 0.85em; color: #656d76; }
+    .markdown-body h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.4;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        color: #171717;
+    }
+    .markdown-body h3:first-child { margin-top: 0; }
+
+    .markdown-body h4 { font-size: 1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+    .markdown-body h5 { font-size: 0.875rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+    .markdown-body h6 { font-size: 0.85rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #6b7280; }
 
     /* Paragraphs and text */
     .markdown-body p {
-        margin-top: 0;
-        margin-bottom: 16px;
+        margin-bottom: 0.75rem;
+    }
+    .markdown-body p:last-child {
+        margin-bottom: 0;
     }
 
     .markdown-body strong { font-weight: 600; }
     .markdown-body em { font-style: italic; }
     .markdown-body del { text-decoration: line-through; }
+    .markdown-body u { text-decoration: underline; }
 
     /* Links */
     .markdown-body a {
-        color: #0969da;
-        text-decoration: none;
+        color: #2563eb;
+        text-decoration: underline;
+        text-underline-offset: 2px;
     }
 
     .markdown-body a:hover {
-        text-decoration: underline;
+        color: #1d4ed8;
     }
 
     /* Lists */
     .markdown-body ul,
     .markdown-body ol {
-        margin-top: 0;
-        margin-bottom: 16px;
-        padding-{{ $isRtl ? 'right' : 'left' }}: 2em;
+        margin-bottom: 0.75rem;
+        padding-{{ $isRtl ? 'right' : 'left' }}: 1.5rem;
     }
 
     .markdown-body ul { list-style-type: disc; }
     .markdown-body ol { list-style-type: decimal; }
 
     .markdown-body li {
-        margin-top: 0.25em;
+        margin-bottom: 0.25rem;
     }
 
-    .markdown-body li + li {
-        margin-top: 0.25em;
+    .markdown-body li p {
+        margin-bottom: 0;
     }
 
     .markdown-body ul ul,
     .markdown-body ul ol,
     .markdown-body ol ol,
     .markdown-body ol ul {
-        margin-top: 0;
+        margin-top: 0.25rem;
         margin-bottom: 0;
     }
 
@@ -338,7 +344,7 @@
         appearance: none;
         width: 1em;
         height: 1em;
-        border: 1px solid #d1d9e0;
+        border: 1px solid #d1d5db;
         border-radius: 3px;
         margin-{{ $isRtl ? 'left' : 'right' }}: 0.35em;
         vertical-align: -0.15em;
@@ -347,8 +353,8 @@
     }
 
     .markdown-body .task-checkbox:checked {
-        background-color: #0969da;
-        border-color: #0969da;
+        background-color: #2563eb;
+        border-color: #2563eb;
     }
 
     .markdown-body .task-checkbox:checked::after {
@@ -365,10 +371,11 @@
 
     /* Blockquotes */
     .markdown-body blockquote {
-        margin: 0 0 16px 0;
-        padding: 0 1em;
-        color: #656d76;
-        border-{{ $isRtl ? 'right' : 'left' }}: 0.25em solid #d1d9e0;
+        border-{{ $isRtl ? 'right' : 'left' }}: 3px solid #e5e7eb;
+        padding-{{ $isRtl ? 'right' : 'left' }}: 1rem;
+        margin: 1rem 0;
+        font-style: italic;
+        color: #6b7280;
     }
 
     .markdown-body blockquote > :first-child { margin-top: 0; }
@@ -376,83 +383,71 @@
 
     /* Code - inline */
     .markdown-body code {
-        padding: 0.2em 0.4em;
-        margin: 0;
-        font-size: 85%;
-        white-space: break-spaces;
-        background-color: rgba(175, 184, 193, 0.2);
-        border-radius: 6px;
-        font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+        background: #f3f4f6;
+        border-radius: 0.25rem;
+        padding: 0.125rem 0.375rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.875em;
     }
 
     /* Code blocks */
     .markdown-body pre {
-        padding: 16px;
-        overflow: auto;
-        font-size: 85%;
-        line-height: 1.45;
-        color: #1f2328;
-        background-color: #f6f8fa;
-        border-radius: 6px;
-        margin-top: 0;
-        margin-bottom: 16px;
+        background: #1f2937;
+        color: #f9fafb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
     }
 
     .markdown-body pre code {
-        padding: 0;
-        margin: 0;
-        font-size: 100%;
-        white-space: pre;
         background: transparent;
-        border-radius: 0;
+        padding: 0;
+        color: inherit;
+        font-size: 100%;
     }
 
     /* Tables */
     .markdown-body table {
-        border-spacing: 0;
         border-collapse: collapse;
-        margin-top: 0;
-        margin-bottom: 16px;
-        display: block;
-        width: max-content;
-        max-width: 100%;
-        overflow: auto;
+        width: 100%;
+        margin: 1rem 0;
     }
 
     .markdown-body table th,
     .markdown-body table td {
-        padding: 6px 13px;
-        border: 1px solid #d1d9e0;
+        border: 1px solid #e5e7eb;
+        padding: 0.5rem 0.75rem;
+        text-align: {{ $isRtl ? 'right' : 'left' }};
     }
 
     .markdown-body table th {
+        background: #f9fafb;
         font-weight: 600;
-        background-color: #f6f8fa;
-    }
-
-    .markdown-body table tr {
-        background-color: #fff;
-        border-top: 1px solid #d1d9e0;
-    }
-
-    .markdown-body table tr:nth-child(2n) {
-        background-color: #f6f8fa;
     }
 
     /* Horizontal rule */
     .markdown-body hr {
-        height: 0.25em;
-        padding: 0;
-        margin: 24px 0;
-        background-color: #d1d9e0;
-        border: 0;
+        border: none;
+        border-top: 1px solid #e5e7eb;
+        margin: 1.5rem 0;
     }
 
     /* Images */
     .markdown-body img {
         max-width: 100%;
-        box-sizing: border-box;
-        border-radius: 6px;
+        height: auto;
+        border-radius: 0.5rem;
+    }
+
+    /* Highlight */
+    .markdown-body mark {
+        background: #fef08a;
+        border-radius: 0.125rem;
+        padding: 0 0.125rem;
     }
 
     /* First/last child margins */
@@ -461,7 +456,7 @@
 
     /* ===== DARK MODE ===== */
     .dark .markdown-body {
-        color: #e6edf3;
+        color: #f5f5f5;
     }
 
     .dark .markdown-body h1,
@@ -469,66 +464,61 @@
     .dark .markdown-body h3,
     .dark .markdown-body h4,
     .dark .markdown-body h5 {
-        color: #e6edf3;
-    }
-
-    .dark .markdown-body h1,
-    .dark .markdown-body h2 {
-        border-bottom-color: #3d444d;
+        color: #f5f5f5;
     }
 
     .dark .markdown-body h6 {
-        color: #9198a1;
+        color: #9ca3af;
     }
 
     .dark .markdown-body a {
-        color: #4493f8;
+        color: #60a5fa;
+    }
+
+    .dark .markdown-body a:hover {
+        color: #93c5fd;
     }
 
     .dark .markdown-body blockquote {
-        color: #9198a1;
-        border-{{ $isRtl ? 'right' : 'left' }}-color: #3d444d;
+        border-{{ $isRtl ? 'right' : 'left' }}-color: #4b5563;
+        color: #9ca3af;
     }
 
     .dark .markdown-body code {
-        background-color: rgba(110, 118, 129, 0.4);
+        background: #374151;
     }
 
     .dark .markdown-body pre {
-        color: #e6edf3;
-        background-color: #161b22;
+        background: #1f2937;
+        color: #f9fafb;
     }
 
     .dark .markdown-body table th,
     .dark .markdown-body table td {
-        border-color: #3d444d;
+        border-color: #4b5563;
     }
 
     .dark .markdown-body table th {
-        background-color: #21262d;
-    }
-
-    .dark .markdown-body table tr {
-        background-color: #0d1117;
-        border-top-color: #3d444d;
-    }
-
-    .dark .markdown-body table tr:nth-child(2n) {
-        background-color: #161b22;
+        background: #374151;
     }
 
     .dark .markdown-body hr {
-        background-color: #3d444d;
+        border-top-color: #4b5563;
+    }
+
+    .dark .markdown-body mark {
+        background: #854d0e;
+        color: #fef08a;
     }
 
     .dark .markdown-body .task-checkbox {
-        border-color: #3d444d;
-        background-color: #0d1117;
+        border-color: #4b5563;
+        background-color: #1f2937;
     }
 
     .dark .markdown-body .task-checkbox:checked {
-        background-color: #4493f8;
-        border-color: #4493f8;
+        background-color: #60a5fa;
+        border-color: #60a5fa;
     }
 
     /* Drag over state */
