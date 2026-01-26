@@ -63,7 +63,7 @@
         "filepond-plugin-image-resize": "^2.0.10",
         "filepond-plugin-image-transform": "^3.8.7",
         "flatpickr": "^4.6.13",
-        "mapbox-gl": "^3.18.0"
+        "mapbox-gl": "^3.18.1"
     },
     "devDependencies": {
         "terser": "^5.46.0",
