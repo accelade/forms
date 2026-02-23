@@ -31,7 +31,7 @@
         "@codemirror/state": "^6.5.4",
         "@codemirror/theme-one-dark": "^6.1.2",
         "@codemirror/view": "^6.39.13",
-        "@googlemaps/js-api-loader": "^1.16.10",
+        "@googlemaps/js-api-loader": "^2.0.2",
         "@tiptap/core": "^3.15.3",
         "@tiptap/extension-bubble-menu": "^3.19.0",
         "@tiptap/extension-character-count": "^3.17.1",
